@@ -1,2 +1,3 @@
 # MyDockerImagePublic
-My Docker Image Public Version
+
+用于部署docker镜像到ghcr。
