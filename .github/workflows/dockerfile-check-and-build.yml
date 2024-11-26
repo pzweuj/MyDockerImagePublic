@@ -9,7 +9,7 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      changed_files: ${{ steps.set-output.outputs.changed_files }}
+      changed_files: ${{ steps.detect.outputs.changed_files }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,7 +20,11 @@ jobs:
           echo "Finding changed Dockerfiles..."
           CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.sha }} | grep 'Dockerfile' || true)
           echo "Changed Dockerfiles: $CHANGED_FILES"
-          echo "::set-output name=changed_files::$CHANGED_FILES"
+          echo "changed_files=$CHANGED_FILES" >> $GITHUB_ENV
+        env:
+          changed_files: ${{ steps.detect.outputs.changed_files }}
+        outputs:
+          changed_files: ${{ env.changed_files }}
 
       - name: Extract Commit Message
         id: extract_message
