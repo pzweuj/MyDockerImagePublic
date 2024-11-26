@@ -1,42 +1,49 @@
-name: Build and Push Docker Images on Tag
+name: Build and Tag Docker Images
 
 on:
   push:
-    tags:       # 仅在提交 tag 时触发工作流
-      - '*'     # 匹配所有 tag
+    paths:
+      - '**/dockerfile' # 监听所有更改的 Dockerfile
 
 jobs:
-  build-and-push:
+  build:
+    name: Build Docker Images
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 检出代码
+      # Step 1: 检出代码
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. 查找所有 Dockerfiles
-      - name: Find Dockerfiles
-        id: find_dockerfiles
+      # Step 2: 获取 Commit 信息
+      - name: Get Commit Info
+        id: commit_info
         run: |
-          # 查找仓库中的所有 Dockerfile
-          DOCKERFILES=$(find . -name 'Dockerfile' || true)
-          echo "Found Dockerfiles:"
-          echo "$DOCKERFILES"
-          echo "::set-output name=dockerfiles::$DOCKERFILES"
+          echo "Extracting commit info..."
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          echo "::set-output name=message::$COMMIT_MESSAGE"
+          echo "::set-output name=hash::$COMMIT_HASH"
 
-      # 3. 构建和推送镜像（基于 Git tag）
-      - name: Build and Push Docker Images
-        if: steps.find_dockerfiles.outputs.dockerfiles != ''
+      # Step 3: 检测更改的 Dockerfile
+      - name: Detect changed Dockerfiles
+        id: changed_files
         run: |
-          for dockerfile in ${{ steps.find_dockerfiles.outputs.dockerfiles }}; do
-            # 根据 Dockerfile 路径生成镜像名称
-            IMAGE_NAME=$(basename $(dirname $dockerfile))
-            TAG_NAME=${{ github.ref_name }}  # 从 Git tag 提取版本号
-            echo "Building and pushing image for $dockerfile as $IMAGE_NAME:$TAG_NAME..."
-            docker build -f $dockerfile -t ghcr.io/${{ github.actor }}/$IMAGE_NAME:$TAG_NAME .
-            docker push ghcr.io/${{ github.actor }}/$IMAGE_NAME:$TAG_NAME
-            docker tag ghcr.io/${{ github.actor }}/$IMAGE_NAME:$TAG_NAME ghcr.io/${{ github.actor }}/$IMAGE_NAME:latest
-            docker push ghcr.io/${{ github.actor }}/$IMAGE_NAME:latest
-          done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.sha }} | grep 'Dockerfile' || true)
+          echo "::set-output name=files::$CHANGED_FILES"
+
+      # Step 4: 构建和推送每个 Dockerfile 对应的镜像
+      - name: Build and Push Docker Images
+        if: steps.changed_files.outputs.files != ''
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ github.workspace }}/$(dirname ${{ matrix.file }}) # 构建路径
+          file: ${{ github.workspace }}/${{ matrix.file }} # Dockerfile 路径
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/$(dirname ${{ matrix.file }}):${{ steps.commit_info.outputs.hash }}
+            ghcr.io/${{ github.repository_owner }}/$(dirname ${{ matrix.file }}):latest # 可选，默认latest
+
+    strategy:
+      matrix:
+        file: ${{ fromJSON(steps.changed_files.outputs.files) }} # 遍历更改的 Dockerfile
