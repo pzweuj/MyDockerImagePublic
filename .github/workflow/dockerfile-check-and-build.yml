@@ -35,6 +35,8 @@ jobs:
             echo "Building and pushing image for $dockerfile as $IMAGE_NAME:$TAG_NAME..."
             docker build -f $dockerfile -t ghcr.io/${{ github.actor }}/$IMAGE_NAME:$TAG_NAME .
             docker push ghcr.io/${{ github.actor }}/$IMAGE_NAME:$TAG_NAME
+            docker tag ghcr.io/${{ github.actor }}/$IMAGE_NAME:$TAG_NAME ghcr.io/${{ github.actor }}/$IMAGE_NAME:latest
+            docker push ghcr.io/${{ github.actor }}/$IMAGE_NAME:latest
           done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
