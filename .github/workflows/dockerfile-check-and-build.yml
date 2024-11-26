@@ -3,14 +3,11 @@ name: Build and Push Docker Images
 on:
   push:
     paths:
-      - '**/dockerfile'
+      - '**/Dockerfile'
 
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
-    outputs:
-      files: ${{ steps.detect.outputs.files }}
-      commit_message: ${{ steps.extract_message.outputs.formatted_message }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,7 +19,7 @@ jobs:
           echo "Finding changed Dockerfiles..."
           CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.sha }} | grep 'Dockerfile' || true)
           echo "Changed Dockerfiles: $CHANGED_FILES"
-          echo "files=$CHANGED_FILES" >> $GITHUB_ENV
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
 
       # 提取提交消息
       - name: Extract Commit Message
@@ -32,12 +29,12 @@ jobs:
           # 格式化提交消息为合法的 Docker 标签
           FORMATTED_MSG=$(echo "$COMMIT_MSG" | tr ' ' '-' | tr -d '\n' | tr -cd '[:alnum:]-')
           echo "Commit Message: $FORMATTED_MSG"
-          echo "commit_message=$FORMATTED_MSG" >> $GITHUB_ENV
+          echo "COMMIT_MESSAGE=$FORMATTED_MSG" >> $GITHUB_ENV
 
   build:
     needs: detect-changes
     runs-on: ubuntu-latest
-    if: ${{ env.files != '' }}
+    if: ${{ env.CHANGED_FILES != '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -45,10 +42,10 @@ jobs:
       # 循环构建和推送 Docker 镜像
       - name: Build and Push Docker Images
         run: |
-          for file in ${{ env.files }}; do
+          for file in ${{ env.CHANGED_FILES }}; do
             echo "Building and pushing image for $file..."
             dir=$(dirname $file)
-            docker build -t ghcr.io/${{ github.repository_owner }}/$dir:${{ env.commit_message }} -f $file .
-            echo "Pushing image ghcr.io/${{ github.repository_owner }}/$dir:${{ env.commit_message }}..."
-            docker push ghcr.io/${{ github.repository_owner }}/$dir:${{ env.commit_message }}
+            docker build -t ghcr.io/${{ github.repository_owner }}/$dir:${{ env.COMMIT_MESSAGE }} -f $file .
+            echo "Pushing image ghcr.io/${{ github.repository_owner }}/$dir:${{ env.COMMIT_MESSAGE }}..."
+            docker push ghcr.io/${{ github.repository_owner }}/$dir:${{ env.COMMIT_MESSAGE }}
           done
