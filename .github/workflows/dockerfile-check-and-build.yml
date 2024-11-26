@@ -1,49 +1,54 @@
-name: Build and Tag Docker Images
+name: Build and Push Docker Images
 
 on:
   push:
     paths:
-      - '**/dockerfile' # 监听所有更改的 Dockerfile
+      - '**/Dockerfile'
 
 jobs:
-  build:
-    name: Build Docker Images
+  detect-changes:
     runs-on: ubuntu-latest
-
+    outputs:
+      files: ${{ steps.detect.outputs.files }}
+      commit_message: ${{ steps.extract_message.outputs.formatted_message }}
     steps:
-      # Step 1: 检出代码
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: 获取 Commit 信息
-      - name: Get Commit Info
-        id: commit_info
-        run: |
-          echo "Extracting commit info..."
-          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-          COMMIT_HASH=$(git rev-parse --short HEAD)
-          echo "::set-output name=message::$COMMIT_MESSAGE"
-          echo "::set-output name=hash::$COMMIT_HASH"
-
-      # Step 3: 检测更改的 Dockerfile
+      # 找出更改的 Dockerfile
       - name: Detect changed Dockerfiles
-        id: changed_files
+        id: detect
         run: |
+          echo "Finding changed Dockerfiles..."
           CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.sha }} | grep 'Dockerfile' || true)
+          echo "Changed Dockerfiles: $CHANGED_FILES"
           echo "::set-output name=files::$CHANGED_FILES"
 
-      # Step 4: 构建和推送每个 Dockerfile 对应的镜像
-      - name: Build and Push Docker Images
-        if: steps.changed_files.outputs.files != ''
-        uses: docker/build-push-action@v4
-        with:
-          context: ${{ github.workspace }}/$(dirname ${{ matrix.file }}) # 构建路径
-          file: ${{ github.workspace }}/${{ matrix.file }} # Dockerfile 路径
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/$(dirname ${{ matrix.file }}):${{ steps.commit_info.outputs.hash }}
-            ghcr.io/${{ github.repository_owner }}/$(dirname ${{ matrix.file }}):latest # 可选，默认latest
+      # 提取提交消息
+      - name: Extract Commit Message
+        id: extract_message
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          # 格式化提交消息为合法的 Docker 标签
+          FORMATTED_MSG=$(echo "$COMMIT_MSG" | tr ' ' '-' | tr -d '\n' | tr -cd '[:alnum:]-')
+          echo "Commit Message: $FORMATTED_MSG"
+          echo "::set-output name=formatted_message::$FORMATTED_MSG"
 
-    strategy:
-      matrix:
-        file: ${{ fromJSON(steps.changed_files.outputs.files) }} # 遍历更改的 Dockerfile
+  build:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.detect-changes.outputs.files != '' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 循环构建和推送 Docker 镜像
+      - name: Build and Push Docker Images
+        run: |
+          for file in ${{ needs.detect-changes.outputs.files }}; do
+            echo "Building and pushing image for $file..."
+            dir=$(dirname $file)
+            docker build -t ghcr.io/${{ github.repository_owner }}/$dir:${{ needs.detect-changes.outputs.commit_message }} -f $file .
+            echo "Pushing image ghcr.io/${{ github.repository_owner }}/$dir:${{ needs.detect-changes.outputs.commit_message }}..."
+            docker push ghcr.io/${{ github.repository_owner }}/$dir:${{ needs.detect-changes.outputs.commit_message }}
+          done
