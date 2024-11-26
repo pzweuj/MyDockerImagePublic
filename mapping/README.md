@@ -1,5 +1,7 @@
 # mapping
 
+Tag: 2024Nov
+
 Alpine 3.20.3 with fastp, bwa, samtools, sambamba, bamdst
 
 ## 整体版本
