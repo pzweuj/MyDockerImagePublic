@@ -22,7 +22,7 @@ jobs:
           echo "Finding changed Dockerfiles..."
           CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep 'Dockerfile' || true)
           echo "Changed Dockerfiles: $CHANGED_FILES"
-          echo "changed_files=${CHANGED_FILES}" >> $GITHUB_OUTPUT
+          echo "changed_files='${CHANGED_FILES}'" >> $GITHUB_OUTPUT
 
       - name: Extract Commit Message
         id: extract_message
@@ -34,13 +34,15 @@ jobs:
 
       - name: Debug Output
         run: |
-          echo "Changed files output: ${{ steps.detect.outputs.changed_files }}"
-          echo "GitHub SHA: ${{ github.sha }}"
+          echo "GITHUB_OUTPUT content:"
+          cat $GITHUB_OUTPUT
+          echo "Changed files value:"
+          echo "${{ steps.detect.outputs.changed_files }}"
 
   build:
     needs: detect-changes
+    if: ${{ contains(needs.detect-changes.outputs.changed_files, 'Dockerfile') }}
     runs-on: ubuntu-latest
-    if: ${{ needs.detect-changes.outputs.changed_files != '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -54,3 +56,8 @@ jobs:
             echo "Pushing image ghcr.io/${{ github.repository_owner }}/$dir:${{ env.COMMIT_MESSAGE }}..."
             docker push ghcr.io/${{ github.repository_owner }}/$dir:${{ env.COMMIT_MESSAGE }}
           done
+
+      - name: Debug Changed Files
+        run: |
+          echo "Changed files from previous job:"
+          echo "${{ needs.detect-changes.outputs.changed_files }}"
