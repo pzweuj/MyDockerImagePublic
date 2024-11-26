@@ -54,14 +54,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build and Push Docker Images
+      - name: Build and push images
         run: |
+          # 获取 commit message 并清理特殊字符
+          VERSION="${{ github.event.head_commit.message }}"
+          # 移除特殊字符，只保留字母、数字、点、横杠和下划线
+          VERSION=$(echo "$VERSION" | tr -dc 'a-zA-Z0-9._-')
+          
+          echo "Using version tag: $VERSION"
+          
           for file in ${{ needs.detect-changes.outputs.changed_files }}; do
             echo "Building and pushing image for $file..."
             dir=$(dirname $file)
-            docker build -t ghcr.io/${{ github.repository_owner }}/$dir:${{ env.COMMIT_MESSAGE }} -f $file .
-            echo "Pushing image ghcr.io/${{ github.repository_owner }}/$dir:${{ env.COMMIT_MESSAGE }}..."
-            docker push ghcr.io/${{ github.repository_owner }}/$dir:${{ env.COMMIT_MESSAGE }}
+            docker build -t ghcr.io/pzweuj/$dir:$VERSION -t ghcr.io/pzweuj/$dir:latest -f $file .
+            echo "Pushing image ghcr.io/pzweuj/$dir:$VERSION"
+            docker push ghcr.io/pzweuj/$dir:$VERSION
+            docker push ghcr.io/pzweuj/$dir:latest
           done
 
       - name: Debug Changed Files
