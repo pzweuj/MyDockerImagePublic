@@ -13,16 +13,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Detect changed Dockerfiles
         id: detect
         run: |
           echo "Finding changed Dockerfiles..."
-          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.sha }} | grep 'Dockerfile' || true)
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep 'Dockerfile' || true)
           echo "Changed Dockerfiles: $CHANGED_FILES"
-          echo "changed_files=$CHANGED_FILES" >> $GITHUB_ENV
-        env:
-          GITHUB_ENV: ${{ github.env }}
+          echo "changed_files=${CHANGED_FILES}" >> $GITHUB_OUTPUT
 
       - name: Extract Commit Message
         id: extract_message
@@ -31,6 +31,11 @@ jobs:
           FORMATTED_MSG=$(echo "$COMMIT_MSG" | tr ' ' '-' | tr -d '\n' | tr -cd '[:alnum:]-')
           echo "Commit Message: $FORMATTED_MSG"
           echo "COMMIT_MESSAGE=$FORMATTED_MSG" >> $GITHUB_ENV
+
+      - name: Debug Output
+        run: |
+          echo "Changed files output: ${{ steps.detect.outputs.changed_files }}"
+          echo "GitHub SHA: ${{ github.sha }}"
 
   build:
     needs: detect-changes
