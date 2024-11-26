@@ -22,7 +22,7 @@ jobs:
           echo "Finding changed Dockerfiles..."
           CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.sha }} | grep 'Dockerfile' || true)
           echo "Changed Dockerfiles: $CHANGED_FILES"
-          echo "::set-output name=files::$CHANGED_FILES"
+          echo "files=$CHANGED_FILES" >> $GITHUB_ENV
 
       # 提取提交消息
       - name: Extract Commit Message
@@ -32,12 +32,12 @@ jobs:
           # 格式化提交消息为合法的 Docker 标签
           FORMATTED_MSG=$(echo "$COMMIT_MSG" | tr ' ' '-' | tr -d '\n' | tr -cd '[:alnum:]-')
           echo "Commit Message: $FORMATTED_MSG"
-          echo "::set-output name=formatted_message::$FORMATTED_MSG"
+          echo "commit_message=$FORMATTED_MSG" >> $GITHUB_ENV
 
   build:
     needs: detect-changes
     runs-on: ubuntu-latest
-    if: ${{ needs.detect-changes.outputs.files != '' }}
+    if: ${{ env.files != '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -45,10 +45,10 @@ jobs:
       # 循环构建和推送 Docker 镜像
       - name: Build and Push Docker Images
         run: |
-          for file in ${{ needs.detect-changes.outputs.files }}; do
+          for file in ${{ env.files }}; do
             echo "Building and pushing image for $file..."
             dir=$(dirname $file)
-            docker build -t ghcr.io/${{ github.repository_owner }}/$dir:${{ needs.detect-changes.outputs.commit_message }} -f $file .
-            echo "Pushing image ghcr.io/${{ github.repository_owner }}/$dir:${{ needs.detect-changes.outputs.commit_message }}..."
-            docker push ghcr.io/${{ github.repository_owner }}/$dir:${{ needs.detect-changes.outputs.commit_message }}
+            docker build -t ghcr.io/${{ github.repository_owner }}/$dir:${{ env.commit_message }} -f $file .
+            echo "Pushing image ghcr.io/${{ github.repository_owner }}/$dir:${{ env.commit_message }}..."
+            docker push ghcr.io/${{ github.repository_owner }}/$dir:${{ env.commit_message }}
           done
