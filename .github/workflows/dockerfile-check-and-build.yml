@@ -22,9 +22,7 @@ jobs:
           echo "Changed Dockerfiles: $CHANGED_FILES"
           echo "changed_files=$CHANGED_FILES" >> $GITHUB_ENV
         env:
-          changed_files: ${{ steps.detect.outputs.changed_files }}
-        outputs:
-          changed_files: ${{ env.changed_files }}
+          GITHUB_ENV: ${{ github.env }}
 
       - name: Extract Commit Message
         id: extract_message
