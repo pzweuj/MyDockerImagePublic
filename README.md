@@ -10,4 +10,10 @@
 
 3，在仓库中，对不同项目新建不同的文件夹，放入dockerfile，输入commit message，此时commit message即是部署后的tag，点击commit and push，等待部署完成。
 
+## 生物信息镜像
+
+### Mapping
+
+包含fastp、bwa、samtools、sambamba、bamdst。
+
 
