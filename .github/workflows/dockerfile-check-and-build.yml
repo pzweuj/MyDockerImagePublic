@@ -8,25 +8,24 @@ on:
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
+    outputs:
+      changed_files: ${{ steps.set-output.outputs.changed_files }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 找出更改的 Dockerfile
       - name: Detect changed Dockerfiles
         id: detect
         run: |
           echo "Finding changed Dockerfiles..."
           CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.sha }} | grep 'Dockerfile' || true)
           echo "Changed Dockerfiles: $CHANGED_FILES"
-          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
+          echo "::set-output name=changed_files::$CHANGED_FILES"
 
-      # 提取提交消息
       - name: Extract Commit Message
         id: extract_message
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
-          # 格式化提交消息为合法的 Docker 标签
           FORMATTED_MSG=$(echo "$COMMIT_MSG" | tr ' ' '-' | tr -d '\n' | tr -cd '[:alnum:]-')
           echo "Commit Message: $FORMATTED_MSG"
           echo "COMMIT_MESSAGE=$FORMATTED_MSG" >> $GITHUB_ENV
@@ -34,15 +33,14 @@ jobs:
   build:
     needs: detect-changes
     runs-on: ubuntu-latest
-    if: ${{ env.CHANGED_FILES != '' }}
+    if: ${{ needs.detect-changes.outputs.changed_files != '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 循环构建和推送 Docker 镜像
       - name: Build and Push Docker Images
         run: |
-          for file in ${{ env.CHANGED_FILES }}; do
+          for file in ${{ needs.detect-changes.outputs.changed_files }}; do
             echo "Building and pushing image for $file..."
             dir=$(dirname $file)
             docker build -t ghcr.io/${{ github.repository_owner }}/$dir:${{ env.COMMIT_MESSAGE }} -f $file .
