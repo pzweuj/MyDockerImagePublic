@@ -3,7 +3,8 @@ name: Build and Push Docker Images
 on:
   push:
     paths:
-      - '**/dockerfile'
+      - '**/[Dd]ockerfile'
+      - '**/Dockerfile*'
 
 jobs:
   detect-changes:
@@ -19,10 +20,16 @@ jobs:
       - name: Detect changed Dockerfiles
         id: detect
         run: |
-          echo "Finding changed Dockerfiles..."
-          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep 'Dockerfile' || true)
-          echo "Changed Dockerfiles: $CHANGED_FILES"
-          echo "changed_files='${CHANGED_FILES}'" >> $GITHUB_OUTPUT
+          echo "Current SHA: ${{ github.sha }}"
+          echo "Previous SHA: ${{ github.event.before }}"
+          
+          # 显示所有变更的文件
+          echo "All changed files:"
+          git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
+          
+          # 尝试使用不同的git命令来检测变更
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep -i dockerfile || true)
+          echo "changed_files=${CHANGED_FILES}" >> $GITHUB_OUTPUT
 
       - name: Extract Commit Message
         id: extract_message
