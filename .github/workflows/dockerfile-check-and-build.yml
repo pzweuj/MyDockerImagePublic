@@ -54,6 +54,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PAT_TOKEN }}
+
       - name: Build and push images
         run: |
           # 获取 commit message 并清理特殊字符
