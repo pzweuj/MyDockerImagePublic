@@ -5,7 +5,7 @@ Tag: 2024Nov
 Alpine 3.20.3 with fastp, bwa, samtools, sambamba, bamdst
 
 ## 整体版本
-fastp 0.23.2
+fastp 0.24.0
 
 bwa 0.7.18
 
