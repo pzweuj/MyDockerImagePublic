@@ -1,5 +1,5 @@
 # Source Image
-FROM biocontainers@sha256:c6f082f5658c6d31a5ccb537289d1ce777f51b7285c465fe0efa219058471c81
+FROM biocontainers/biocontainers@sha256:c6f082f5658c6d31a5ccb537289d1ce777f51b7285c465fe0efa219058471c81
 
 ################## BEGIN INSTALLATION ###########################
 # Install necessary packages
