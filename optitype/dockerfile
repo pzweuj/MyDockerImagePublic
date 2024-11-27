@@ -3,18 +3,17 @@ FROM biocontainers/biocontainers@sha256:c6f082f5658c6d31a5ccb537289d1ce777f51b72
 
 ################## BEGIN INSTALLATION ###########################
 # Install necessary packages
-RUN apk update && apk add --no-cache \
-    build-base \
-    gcc \
-    g++ \
-    coin-or-cbc \
-    zlib-dev \
-    bzip2-dev \
-    curl \
-    python3 \
-    py3-pip \
-    git \
-    cmake
+RUN apt-get update && apt-get install -y software-properties-common \
+    && apt-get update && apt-get install -y \
+        gcc-4.9 \
+        g++-4.9 \
+        coinor-cbc \
+        zlib1g-dev \
+        libbz2-dev \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean \
+    && apt-get purge
 
 # HLA Typing
 # OptiType dependencies
