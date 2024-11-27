@@ -1,0 +1,82 @@
+LABEL maintainer="pzweuj" version="v1.3.5" author="Benjamin Schubert <schubert@informatik.uni-tuebingen.de>" repo="https://github.com/FRED-2/OptiType"
+
+# Source Image
+FROM biocontainers/biocontainers:c6f082f5658c
+
+################## BEGIN INSTALLATION ###########################
+# Install necessary packages
+RUN apk update && apk add --no-cache \
+    build-base \
+    gcc \
+    g++ \
+    coin-or-cbc \
+    zlib-dev \
+    bzip2-dev \
+    curl \
+    python3 \
+    py3-pip \
+    git \
+    cmake
+
+# HLA Typing
+# OptiType dependencies
+RUN curl -O https://support.hdfgroup.org/ftp/HDF5/current18/bin/hdf5-1.8.21-Std-centos7-x86_64-shared_64.tar.gz \
+    && tar -xvf hdf5-1.8.21-Std-centos7-x86_64-shared_64.tar.gz \
+    && mv hdf5-1.8.21-Std-centos7-x86_64-shared_64/bin/* /usr/local/bin/ \
+    && mv hdf5-1.8.21-Std-centos7-x86_64-shared_64/lib/* /usr/local/lib/ \
+    && mv hdf5-1.8.21-Std-centos7-x86_64-shared_64/include/* /usr/local/include/ \
+    && mv hdf5-1.8.21-Std-centos7-x86_64-shared_64/share/* /usr/local/share/ \
+    && rm -rf hdf5-1.8.21-Std-centos7-x86_64-shared_64/ \
+    && rm -f hdf5-1.8.21-Std-centos7-x86_64-shared_64.tar.gz
+
+ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
+ENV HDF5_DIR /usr/local/
+
+RUN pip3 install --upgrade pip && pip3 install \
+    numpy==1.9.3 \
+    pyomo==4.2 \
+    pysam==0.8.3 \
+    matplotlib==1.4.3 \
+    tables==3.2.2 \
+    pandas==0.16.2 \
+    future==0.15.2
+
+# Installing OptiType from git repository
+RUN git clone https://github.com/FRED-2/OptiType.git \
+    && sed -i -e '1i#!/usr/bin/env python3' OptiType/OptiTypePipeline.py \
+    && mv OptiType/ /usr/local/bin/ \
+    && chmod 777 /usr/local/bin/OptiType/OptiTypePipeline.py \
+    && echo "[mapping]\n\
+razers3=/usr/local/bin/razers3 \n\
+threads=1 \n\
+\n\
+[ilp]\n\
+solver=cbc \n\
+threads=1 \n\
+\n\
+[behavior]\n\
+deletebam=true \n\
+unpaired_weight=0 \n\
+use_discordant=false\n" >> /usr/local/bin/OptiType/config.ini
+
+# Installing razers3
+RUN git clone https://github.com/seqan/seqan.git seqan-src \
+    && cd seqan-src \
+    && cmake -DCMAKE_BUILD_TYPE=Release \
+    && make razers3 \
+    && cp bin/razers3 /usr/local/bin \
+    && cd .. \
+    && rm -rf seqan-src
+
+ENV PATH=/usr/local/bin/OptiType:$PATH
+
+# Change user to back to biodocker
+USER biodocker
+
+# Change workdir to /data/
+WORKDIR /data/
+
+# Define default command
+ENTRYPOINT ["OptiTypePipeline.py"]
+CMD ["-h"]
+
