@@ -1,0 +1,29 @@
+FROM alpine:3.20.3
+
+# 安装基础工具和依赖
+RUN apk update && apk add --no-cache \
+    perl \
+    perl-dev \
+    cmake \
+    make \
+    gcc \
+    g++ \
+    libc-dev \
+    linux-headers \
+    git
+
+# 设置工作目录
+WORKDIR /app
+
+# 验证安装
+RUN git clone https://github.com/mourisl/T1K.git && \
+    cd T1K && \
+    make && \
+    perl t1k-build.pl -o hlaidx --download IPD-IMGT/HLA && \
+    perl t1k-build.pl -o kiridx --download IPD-KIR --partial-intron-noseq
+
+# 设置默认命令
+CMD ["/app/T1K/run-t1k"]
+
+# 设置标签
+LABEL maintainer="pzweuj" version="v1.0.6" repository="https://github.com/mourisl/T1K" author="mourisl"
