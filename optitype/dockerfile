@@ -5,8 +5,8 @@ FROM biocontainers/biocontainers@sha256:c6f082f5658c6d31a5ccb537289d1ce777f51b72
 # Install necessary packages
 RUN apt-get update && apt-get install -y software-properties-common \
     && apt-get update && apt-get install -y \
-        gcc-4.9 \
-        g++-4.9 \
+        gcc \
+        g++ \
         coinor-cbc \
         zlib1g-dev \
         libbz2-dev \
