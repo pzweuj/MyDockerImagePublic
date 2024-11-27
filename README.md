@@ -2,6 +2,8 @@
 
 用于部署docker镜像到ghcr。
 
+[我的镜像库](https://github.com/pzweuj?tab=packages)
+
 ## 使用方法
 
 1，创建一个自己的Ghcr Token，点击自己的头像，选择Setting，选择左下角的Developer settings，选择Personal access tokens，点击Tokens(classic)，点击Generate new token,同样选择classic，输入描述，选择repo，时间最长是选择一年，点击Generate token，注意token需要拥有读写权限，复制token；
