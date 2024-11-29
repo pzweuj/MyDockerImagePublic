@@ -30,6 +30,7 @@ RUN apk add --no-cache \
     bzip2-dev \
     git \
     python3 \
+    python3-dev \
     py3-pip \
     curl \
     hdf5 \
@@ -47,8 +48,7 @@ RUN /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install \
     pysam \
     matplotlib \
     tables \
-    pandas \
-    future
+    pandas
 
 # installing optitype from git repository (version Dec 09 2015) and writing config.ini
 RUN git clone -b dev https://github.com/pzweuj/OptiType.git \
