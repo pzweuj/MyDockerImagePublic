@@ -33,7 +33,8 @@ RUN apk add --no-cache \
     py3-pip \
     curl \
     hdf5 \
-    hdf5-dev
+    hdf5-dev \
+    xz-dev
 
 # HLA Typing
 # Create a virtual environment
