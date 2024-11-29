@@ -75,4 +75,4 @@ CMD ["-h"]
 ##################### INSTALLATION END ##########################
 
 # File Author / Maintainer
-LABLE author="schubert" maintainer="pzweuj" version="1.3.5.p"
+LABEL author="schubert" maintainer="pzweuj" version="1.3.5.p"
