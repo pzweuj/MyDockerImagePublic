@@ -18,8 +18,6 @@
 FROM alpine:3.20.3
 
 ################## BEGIN INSTALLATION ###########################
-USER root
-
 # install
 RUN apk add --no-cache \
     gcc \
@@ -52,7 +50,7 @@ RUN git clone https://github.com/Blosc/c-blosc2.git \
 
 # HLA Typing
 # OptiType dependencies
-RUN /opt/venv/bin/pip install --no-cache-dir --upgrade pip && /opt/venv/bin/pip install --no-cache-dir \
+RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir --upgrade pip && /opt/venv/bin/pip install --no-cache-dir \
     numpy \
     pyomo \
     pysam \
