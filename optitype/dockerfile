@@ -33,6 +33,8 @@ RUN apk add --no-cache \
     python3-dev \
     py3-pip \
     curl \
+    musl-dev \
+    libffi-dev \
     blosc \
     blosc-dev \
     hdf5 \
@@ -82,4 +84,4 @@ CMD ["/bin/sh"]
 ##################### INSTALLATION END ##########################
 
 # File Author / Maintainer
-LABEL author="schubert" maintainer="pzweuj" version="1.3.5.p"
+LABEL author="schubert" maintainer="pzweuj" version="v1.3.5.p"
