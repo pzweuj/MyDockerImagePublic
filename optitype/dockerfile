@@ -33,11 +33,11 @@ RUN apk add --no-cache \
     python3-dev \
     py3-pip \
     curl \
+    blosc \
+    blosc-dev \
     hdf5 \
     hdf5-dev \
-    xz-dev \
-    blosc \
-    blosc-dev
+    xz-dev
 
 # HLA Typing
 # Create a virtual environment
