@@ -36,8 +36,8 @@ RUN apk add --no-cache \
     hdf5 \
     hdf5-dev \
     xz-dev \
-    c-blosc \
-    c-blosc-dev
+    blosc \
+    blosc-dev
 
 # HLA Typing
 # Create a virtual environment
@@ -77,7 +77,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 WORKDIR /data/
 
 # Define default command
-CMD ["/bin/bash"]
+CMD ["/bin/sh"]
 
 ##################### INSTALLATION END ##########################
 
