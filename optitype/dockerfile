@@ -35,18 +35,24 @@ RUN apk add --no-cache \
     curl \
     musl-dev \
     libffi-dev \
-    blosc \
-    blosc-dev \
     hdf5 \
     hdf5-dev \
     xz-dev
 
-# HLA Typing
-# Create a virtual environment
-RUN python3 -m venv /opt/venv
+# Install biosc from source code
+RUN git clone https://github.com/Blosc/c-blosc2.git \
+    && cd c-blosc2 \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make \
+    && make install \
+    && cd ../.. \
+    && rm -rf c-blosc2
 
+# HLA Typing
 # OptiType dependencies
-RUN /opt/venv/bin/pip install --no-cache-dir --upgrade pip && /opt/venv/bin/pip install --no-cache-dir \
+RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir \
     numpy \
     pyomo \
     pysam \
@@ -72,8 +78,6 @@ RUN git clone https://github.com/seqan/seqan.git seqan-src \
     && rm -rf seqan-src
 
 ENV PATH=/usr/local/bin/OptiType:$PATH
-ENV VIRTUAL_ENV=/opt/venv
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Change workdir to /data/
 WORKDIR /data/
