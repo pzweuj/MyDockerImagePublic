@@ -90,4 +90,4 @@ CMD ["/bin/sh"]
 ##################### INSTALLATION END ##########################
 
 # File Author / Maintainer
-LABEL author="schubert" maintainer="pzweuj" version="v1.3.5.p"
+LABEL author="schubert" maintainer="pzweuj" version="v1.3.5.p1"
