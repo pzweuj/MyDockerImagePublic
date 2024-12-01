@@ -69,15 +69,11 @@ ENV PATH=/usr/local/bin/OptiType:$PATH
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Change user to back to biodocker
-USER appuser
-
 # Change workdir to /data/
 WORKDIR /data/
 
 # Define default command
-ENTRYPOINT ["OptiTypePipeline.py"]
-CMD ["-h"]
+CMD ["/bin/bash"]
 
 ##################### INSTALLATION END ##########################
 
