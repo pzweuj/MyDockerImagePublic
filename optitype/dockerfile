@@ -52,7 +52,7 @@ RUN git clone https://github.com/Blosc/c-blosc2.git \
 
 # HLA Typing
 # OptiType dependencies
-RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir \
+RUN /opt/venv/bin/pip install --no-cache-dir --upgrade pip && /opt/venv/bin/pip install --no-cache-dir \
     numpy \
     pyomo \
     pysam \
@@ -78,6 +78,8 @@ RUN git clone https://github.com/seqan/seqan.git seqan-src \
     && rm -rf seqan-src
 
 ENV PATH=/usr/local/bin/OptiType:$PATH
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Change workdir to /data/
 WORKDIR /data/
