@@ -13,4 +13,4 @@ USER ubuntu
 CMD ["bash"]
 
 # Maintainer
-LABEL author="Eric Talevich <52723+etal@users.noreply.github.com>" maintainer="pzweuj" version="v0.9.11.p3"
+LABEL author="Eric Talevich <52723+etal@users.noreply.github.com>" maintainer="pzweuj" version="v0.9.11.p3" 
