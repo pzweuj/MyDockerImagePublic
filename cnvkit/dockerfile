@@ -1,27 +1,15 @@
 # 基础镜像
-FROM continuumio/miniconda3:23.10.0-1
+FROM etal/cnvkit:0.9.11
 
-# 安装git
-RUN apt-get update && apt-get install -y git
+# 切换用户调整脚本权限
+USER root
+RUN chmod 777 /opt/conda/lib/python3.10/site-packages/cnvlib/params.py 
 
-# 从 GitHub 克隆仓库
-RUN git clone -b params https://github.com/pzweuj/cnvkit.git /tmp/repo
+# 安装补丁
+RUN wget -O /opt/conda/bin/cnvkit_params_modify.py https://github.com/pzweuj/MyDockerImagePublic/raw/refs/heads/main/cnvkit/cnvkit_params_modify.py
 
-# Install directly into 'base' conda environment
-RUN cp /tmp/repo/scripts/* /opt/conda/bin && \
-    cp /tmp/repo/cnvkit_params_modify.py /opt/conda/bin && \
-    cp /tmp/repo/conda-env.yml ./conda-env.yml
-
-RUN conda env update -v -n base -f conda-env.yml
-RUN conda clean --all --verbose
-RUN pip3 install cnvkit==0.9.11 --no-cache
-
-# Let matplotlib build its font cache
-RUN cnvkit.py version
-
-## USER CONFIGURATION, containers should not run as root
-RUN rm -rf /tmp/repo
-WORKDIR /data
+# 切换回去
+USER ubuntu
 CMD ["bash"]
 
 # Maintainer
