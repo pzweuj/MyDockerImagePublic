@@ -22,4 +22,12 @@
 
 HLA分型检测软件。
 
+### CNVkit
+
+cnvkit改版，增加一个脚本用于调整params参数。注意，官方不建议调整该参数，但当进行高分辨率的CNV检测时，较低/较高的GC比例设定可能会导致一些真实CNV区域被过滤掉，谨慎进行调整。
+
+示例
+```bash
+python /opt/conda/bin/cnvkit_params_modify.py --force_rewrite True --GC_MIN_FRACTION 0.25
+```
 
