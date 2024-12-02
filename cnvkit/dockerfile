@@ -1,0 +1,27 @@
+# 基础镜像
+FROM continuumio/miniconda3:23.10.0-1
+
+# 安装git
+RUN apt-get update && apt-get install -y git
+
+# 从 GitHub 克隆仓库
+RUN git clone -b params https://github.com/pzweuj/cnvkit.git /tmp/repo
+
+# Install directly into 'base' conda environment
+COPY /tmp/repo/conda-env.yml ./conda-env.yml
+RUN conda env update -v -n base -f conda-env.yml
+RUN conda clean --all --verbose
+RUN pip3 install cnvkit==0.9.11 --no-cache
+
+# Let matplotlib build its font cache
+RUN cnvkit.py version
+COPY /tmp/repo/scripts/* /opt/conda/bin
+COPY /tmp/repo/cnvkit_params_modify.py /opt/conda/bin
+
+## USER CONFIGURATION, containers should not run as root
+RUN rm -rf /tmp/repo
+WORKDIR /data
+CMD ["bash"]
+
+# Maintainer
+LABEL author="Eric Talevich <52723+etal@users.noreply.github.com>" maintainer="pzweuj"
