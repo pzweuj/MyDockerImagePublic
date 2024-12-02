@@ -50,7 +50,7 @@ SUPPORTED_GENOMES_FOR_PAR_HANDLING = PSEUDO_AUTSOMAL_REGIONS.keys()
 # 传参模式
 def main():
     parser = argparse.ArgumentParser(description="Generate CNVkit parameters file")
-    parser.add_argument("--file_path", type=str, help="Path to the output file", default="/opt/conda/lib/python3.10/site-packages/cnvlib/params.py"))
+    parser.add_argument("--file_path", type=str, help="Path to the output file", default="/opt/conda/lib/python3.10/site-packages/cnvlib/params.py")
     parser.add_argument("--MIN_REF_COVERAGE", type=str, help="Minimum reference coverage", default="-5.0")
     parser.add_argument("--MAX_REF_SPREAD", type=str, help="Maximum reference spread", default="1.0")
     parser.add_argument("--NULL_LOG2_COVERAGE", type=str, help="NULL log2 coverage", default="-20.0")
