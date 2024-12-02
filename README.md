@@ -18,4 +18,8 @@
 
 包含fastp、bwa、samtools、sambamba、bamdst。
 
+### Optitype
+
+HLA分型检测软件。
+
 
