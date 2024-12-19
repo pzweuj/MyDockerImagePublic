@@ -17,6 +17,7 @@ RUN apk add --no-cache \
     bzip2-dev \
     xz-dev \
     curl-dev \
+    coreutils \
     && rm -rf /var/cache/apk/* /tmp/* /root/.cache
 
 # 安装 bcftools
