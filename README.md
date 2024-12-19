@@ -31,3 +31,6 @@ cnvkit改版，增加一个脚本用于调整params参数。注意，官方不�
 python /opt/conda/bin/cnvkit_params_modify.py --force_rewrite True --GC_MIN_FRACTION 0.25
 ```
 
+### AutoMap
+
+用于WES的ROH检测软件。
