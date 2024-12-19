@@ -16,7 +16,9 @@ RUN apk add --no-cache \
     zlib-dev \
     bzip2-dev \
     xz-dev \
-    curl-dev
+    curl-dev \
+    && apk del .build-deps \
+    && rm -rf /var/cache/apk/* /tmp/* /root/.cache
 
 # 安装 bcftools
 RUN cd /tmp && \
@@ -34,10 +36,11 @@ RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.s
     chmod a+x /usr/local/bin/bedtools
 
 # 克隆AutoMap仓库
-RUN git clone https://github.com/mquinodo/AutoMap.git /opt/AutoMap
+RUN git clone https://github.com/mquinodo/AutoMap.git /opt/AutoMap && \
+    chmod -R 777 /opt/AutoMap/Resources
 
 # 设置工作目录
-WORKDIR /opt/AutoMap
+WORKDIR /data
 
 # 添加到PATH
 ENV PATH="/opt/AutoMap:${PATH}"
