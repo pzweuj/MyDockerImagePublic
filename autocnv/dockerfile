@@ -23,8 +23,8 @@ RUN apk update && apk add --no-cache \
     xz-dev \
     git \
     curl \
-    htslib \
-    htslib-dev \
+    htslib@testing \
+    htslib-dev@testing \
     && rm -rf /var/cache/apk/*
 
 # 安装python依赖库
