@@ -35,7 +35,7 @@ RUN apk add --no-cache \
     perl-xml-sax \
     perl-xml-twig \
     expat-dev \
-    && cpanm DB \
+    && cpanm DB_File \
     XML::Parser::PerlSAX \
     XML::DOM \
     Bio::DB::BigFile \
