@@ -16,8 +16,6 @@ RUN echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/ap
     py3-pip \
     perl \
     perl-dev \
-    R \
-    R-dev \
     build-base \
     zlib-dev \
     bzip2-dev \
@@ -37,6 +35,7 @@ RUN apk add --no-cache \
     perl-xml-libxml \
     perl-xml-sax \
     perl-xml-twig \
+    perl-db \
     expat-dev \
     && cpanm XML::Parser::PerlSAX \
     XML::DOM \
