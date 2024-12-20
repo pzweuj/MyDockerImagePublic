@@ -1,6 +1,7 @@
 ############## 运行提示 ################
 # 需要mount进所有目录
 # docker run -it --rm -v /autocnv_data:/opt/autocnv/data -v /vep_data:/root/.vep -v /ref_data:/ref_data autocnv:20241220
+# 
 #######################################
 
 FROM alpine:3.20.3
