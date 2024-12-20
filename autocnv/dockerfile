@@ -1,7 +1,9 @@
 ############## 运行提示 ################
 # 需要mount进所有目录
 # docker run -it --rm -v /autocnv_data:/opt/autocnv/data -v /vep_data:/root/.vep -v /ref_data:/ref_data autocnv:20241220
-# 
+
+# 第一个命令，先调整autopvs1的配置文件
+# cp self.config.ini /opt/autopvs1/config.ini
 #######################################
 
 FROM alpine:3.20.3
@@ -21,6 +23,8 @@ RUN apk update && apk add --no-cache \
     xz-dev \
     git \
     curl \
+    htslib \
+    htslib-dev \
     && rm -rf /var/cache/apk/*
 
 # 安装python依赖库
