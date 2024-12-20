@@ -33,7 +33,14 @@ RUN apk add --no-cache \
     perl-dbd-mysql \
     perl-app-cpanminus \
     perl-json \
-    && cpanm Bio::DB::BigFile \
+    perl-xml-parser \
+    perl-xml-libxml \
+    perl-xml-sax \
+    perl-xml-twig \
+    expat-dev \
+    && cpanm XML::Parser::PerlSAX \
+    XML::DOM \
+    Bio::DB::BigFile \
     IO::Compress \
     HTTP::Tiny \
     List::MoreUtils \
