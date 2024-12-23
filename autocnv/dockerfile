@@ -7,9 +7,11 @@
 
 # 第一个命令，先调整autopvs1的配置文件
 # cp self.config.ini /opt/autopvs1/config.ini
+
+# 建议自行构建，适配自己的VEP数据库版本
 #######################################
 
-FROM ensemblorg/ensembl-vep:release_113.3
+FROM ensemblorg/ensembl-vep:release_112.0
 
 # 切换到root用户
 USER root
@@ -49,7 +51,8 @@ RUN git clone https://github.com/JiguangPeng/autopvs1.git
 RUN git clone https://github.com/zhonghua-wang/autocnv.git
 
 # 标准进入点
+USER vep
 ENTRYPOINT ["/bin/bash"]
 
 # 设置环境变量
-LABEL maintainer='pzweuj' version='20241223' vep='v113' autopvs1='v2.0' autocnv='e25ca01'
+LABEL maintainer='pzweuj' version='20241223' vep='v112' autopvs1='v2.0' autocnv='e25ca01'
