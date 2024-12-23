@@ -6,6 +6,40 @@
 # cp self.config.ini /opt/autopvs1/config.ini
 #######################################
 
+# 构建基础环境
+FROM alpine:3.20.3 as builder
+
+# 安装基础依赖
+RUN apk update && apk add --no-cache \
+    build-base \
+    git \
+    perl \
+    perl-dev \
+    zlib-dev \
+    bzip2-dev \
+    xz-dev \
+    curl \
+    wget \
+    expat-dev \
+    db-dev \
+    openssl-dev \
+    && rm -rf /var/cache/apk/*
+
+# 设置VEP环境变量
+ENV OPT /opt/vep
+ENV OPT_SRC $OPT/src
+ENV HTSLIB_DIR $OPT_SRC/htslib
+
+# 创建工作目录
+WORKDIR $OPT_SRC
+
+# 下载并安装htslib（Bio::DB::HTS的依赖）
+RUN git clone --depth 1 https://github.com/samtools/htslib.git && \
+    cd htslib && \
+    make && \
+    make install
+
+# 第二阶段：最终镜像
 FROM alpine:3.20.3
 
 # 安装基础依赖
@@ -21,10 +55,6 @@ RUN apk update && apk add --no-cache \
     xz-dev \
     git \
     curl \
-    && rm -rf /var/cache/apk/*
-
-# 安装perl依赖库
-RUN apk add --no-cache \
     perl-archive-zip \
     perl-dbi \
     perl-dbd-mysql \
@@ -35,7 +65,19 @@ RUN apk add --no-cache \
     perl-xml-sax \
     perl-xml-twig \
     expat-dev \
-    && cpanm Bio::Seq \
+    db-dev \
+    openssl-dev \
+    && rm -rf /var/cache/apk/*
+
+# 复制第一阶段构建的htslib
+COPY --from=builder /usr/local/lib/libhts* /usr/local/lib/
+COPY --from=builder /usr/local/include/htslib /usr/local/include/htslib
+COPY --from=builder /usr/local/bin/bgzip /usr/local/bin/
+COPY --from=builder /usr/local/bin/tabix /usr/local/bin/
+
+# 安装perl依赖
+RUN cpanm --notest \
+    Bio::Seq \
     DB_File \
     XML::Parser::PerlSAX \
     XML::DOM \
@@ -46,14 +88,17 @@ RUN apk add --no-cache \
     LWP::Simple \
     Bio::DB::HTS
 
+# 后续步骤
 WORKDIR /opt
+
 # 安装VEP
 RUN git clone https://github.com/Ensembl/ensembl-vep.git && \
     cd ensembl-vep && \
     perl INSTALL.pl --AUTO a
 
 # 安装python依赖库
-RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir --upgrade pip && /opt/venv/bin/pip install --no-cache-dir \
+RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir --upgrade pip && \
+    /opt/venv/bin/pip install --no-cache-dir \
     pandas \
     pyfaidx \
     pysam \
@@ -69,4 +114,4 @@ RUN git clone https://github.com/zhonghua-wang/autocnv.git
 
 # 设置环境变量
 ENV PATH="/opt/venv/bin:$PATH"
-LABEL maintainer='pzweuj' version='20241220' vep='v113' autopvs1='v2.0' autocnv='e25ca01'
+LABEL maintainer='pzweuj' version='20241223' vep='v113' autopvs1='v2.0' autocnv='e25ca01'
