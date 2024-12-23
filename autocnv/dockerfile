@@ -9,107 +9,29 @@
 # cp self.config.ini /opt/autopvs1/config.ini
 #######################################
 
-# 构建基础环境
-FROM alpine:3.20.3 as builder
+FROM ensemblorg/ensembl-vep:release_113.3
 
-# 安装基础依赖
-RUN apk update && apk add --no-cache \
-    build-base \
+# 基础依赖
+RUN apt-get update && apt-get install -y \
+    build-essential \
     git \
-    zlib-dev \
-    bzip2-dev \
-    xz-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    liblzma-dev \
+    python3 \
+    python3-pip \
     curl \
     wget \
-    expat-dev \
-    db-dev \
-    openssl-dev \
-    && rm -rf /var/cache/apk/*
-
-# 设置VEP环境变量
-ENV OPT /opt/vep
-ENV OPT_SRC $OPT/src
-ENV HTSLIB_DIR $OPT_SRC/htslib
-
-# 安装perl 5.32.1
-# Stage 1: Build Perl
-RUN curl -L https://www.cpan.org/src/5.0/perl-5.32.1.tar.gz -o perl.tar.gz \
-    && tar -xzf perl.tar.gz \
-    && cd perl-5.32.1 \
-    && ./Configure -des -Dprefix=/usr/local/perl \
-    && make \
-    && make install
-
-# 创建工作目录
-WORKDIR $OPT_SRC
-
-# 下载并安装htslib（Bio::DB::HTS的依赖）
-RUN wget https://github.com/samtools/htslib/releases/download/1.21/htslib-1.21.tar.bz2 && \
-    tar -xvjf htslib-1.21.tar.bz2 && \
-    cd htslib-1.21 && \
-    ./configure && \
-    make && \
-    make install
-
-# 第二阶段：最终镜像
-FROM alpine:3.20.3
-
-# 复制第一阶段构建的htslib
-COPY --from=builder /usr/local/perl /usr/local/perl
-COPY --from=builder /usr/local/lib/libhts* /usr/local/lib/
-COPY --from=builder /usr/local/include/htslib /usr/local/include/htslib
-COPY --from=builder /usr/local/bin/bgzip /usr/local/bin/
-COPY --from=builder /usr/local/bin/tabix /usr/local/bin/
-
-# 安装基础依赖
-RUN apk update && apk add --no-cache \
-    python3 \
-    python3-dev \
-    py3-pip \
-    build-base \
-    zlib-dev \
-    bzip2-dev \
-    xz-dev \
-    git \
-    curl \
-    perl-archive-zip \
-    perl-dbi \
-    perl-dbd-mysql \
-    perl-app-cpanminus \
-    perl-json \
-    perl-xml-parser \
-    perl-xml-libxml \
-    perl-xml-sax \
-    perl-xml-twig \
-    expat-dev \
-    db-dev \
-    openssl-dev \
-    && rm -rf /var/cache/apk/*
-
-# 安装perl依赖
-RUN cpanm --notest \
-    Bio::Seq \
-    DB_File \
-    XML::Parser::PerlSAX \
-    XML::DOM \
-    Bio::DB::BigFile \
-    IO::Compress \
-    HTTP::Tiny \
-    List::MoreUtils \
-    LWP::Simple \
-    Bio::DB::HTS
-
-# 后续步骤
-WORKDIR /opt
-
-# 安装VEP
-RUN git clone https://github.com/Ensembl/ensembl-vep.git && \
-    cd ensembl-vep && \
-    perl INSTALL.pl --AUTO a
+    expat \
+    libdb-dev \
+    openssl \
+    bgzip \
+    tabix \
+    && rm -rf /var/lib/apt/lists/*
 
 # 安装python依赖库
-RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir --upgrade pip && \
-    /opt/venv/bin/pip install --no-cache-dir \
+RUN python3 -m pip install --no-cache-dir --upgrade pip && \
+    python3 -m pip install --no-cache-dir \
     pandas \
     pyfaidx \
     pysam \
@@ -124,5 +46,4 @@ RUN git clone https://github.com/JiguangPeng/autopvs1.git && \
 RUN git clone https://github.com/zhonghua-wang/autocnv.git
 
 # 设置环境变量
-ENV PATH="/opt/venv/bin:$PATH"
 LABEL maintainer='pzweuj' version='20241223' vep='v113' autopvs1='v2.0' autocnv='e25ca01'
