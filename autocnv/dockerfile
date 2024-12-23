@@ -1,6 +1,6 @@
 ############## 运行提示 ################
-# 请提前准备好数据库
-# python3 create-database.py
+# 请提前准备好数据库 || 需要自行修改脚本
+# python3 https://github.com/pzweuj/MyDockerImagePublic/blob/main/autocnv/create-database.py
 
 # 需要mount进所有目录
 # docker run -it --rm -v /autocnv_data:/opt/autocnv/data -v /vep_data:/root/.vep -v /ref_data:/ref_data autocnv:20241223
@@ -45,8 +45,9 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip && \
 WORKDIR /opt
 
 # 安装AutoPVS1 || 这个版本更新了import方案，更合适
-RUN git clone https://github.com/glsofort/autopvs1.git && \
-    chmod -R 777 /opt/autopvs1
+RUN git clone -b dev https://github.com/pzweuj/autopvs1.git && \
+    cd autopvs1 && \
+    python3 setup.py install
 
 # 安装AutoCNV
 RUN git clone https://github.com/zhonghua-wang/autocnv.git && \
