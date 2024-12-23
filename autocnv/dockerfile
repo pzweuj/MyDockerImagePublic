@@ -44,11 +44,13 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip && \
 # 切换工作目录
 WORKDIR /opt
 
-# 安装AutoPVS1
-RUN git clone https://github.com/JiguangPeng/autopvs1.git
+# 安装AutoPVS1 || 这个版本更新了import方案，更合适
+RUN git clone https://github.com/glsofort/autopvs1.git && \
+    chmod -R 777 /opt/autopvs1
 
 # 安装AutoCNV
-RUN git clone https://github.com/zhonghua-wang/autocnv.git
+RUN git clone https://github.com/zhonghua-wang/autocnv.git && \
+    chmod -R 777 /opt/autocnv
 
 # 标准进入点
 USER vep
