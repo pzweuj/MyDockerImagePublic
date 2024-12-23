@@ -1,6 +1,9 @@
 ############## 运行提示 ################
+# 请提前准备好数据库
+# python3 create-database.py
+
 # 需要mount进所有目录
-# docker run -it --rm -v /autocnv_data:/opt/autocnv/data -v /vep_data:/root/.vep -v /ref_data:/ref_data autocnv:20241220
+# docker run -it --rm -v /autocnv_data:/opt/autocnv/data -v /vep_data:/root/.vep -v /ref_data:/ref_data autocnv:20241223
 
 # 第一个命令，先调整autopvs1的配置文件
 # cp self.config.ini /opt/autopvs1/config.ini
@@ -34,8 +37,9 @@ ENV HTSLIB_DIR $OPT_SRC/htslib
 WORKDIR $OPT_SRC
 
 # 下载并安装htslib（Bio::DB::HTS的依赖）
-RUN git clone --depth 1 https://github.com/samtools/htslib.git && \
+RUN git clone https://github.com/samtools/htslib.git && \
     cd htslib && \
+    ./configure && \
     make && \
     make install
 
