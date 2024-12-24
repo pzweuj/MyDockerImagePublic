@@ -34,9 +34,6 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装python依赖库
-ENV VIRTUAL_ENV=/opt/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN python3 -m pip install --no-cache-dir --upgrade pip && \
     python3 -m pip install --no-cache-dir \
     pandas \
@@ -49,18 +46,18 @@ WORKDIR /opt
 
 # 安装AutoPVS1 || 注意python版本
 RUN git clone -b dev https://github.com/pzweuj/autopvs1.git && \
-    cd autopvs1 && \
-    python3 setup.py install && \
-    chmod -R 777 $VIRTUAL_ENV
+    chmod -R 777 /opt/autopvs1
 
 # 安装AutoCNV
 RUN git clone -b dev https://github.com/pzweuj/autocnv.git && \
-    cd autocnv && \
-    python3 setup.py install && \
-    chmod -R 777 $VIRTUAL_ENV
+    chmod -R 777 /opt/autocnv
+
+# 加入其他文件
+RUN cd /opt/autocnv && \
+    wget https://github.com/pzweuj/MyDockerImagePublic/raw/refs/heads/main/autocnv/create-database.py && \
+    wget https://github.com/pzweuj/MyDockerImagePublic/raw/refs/heads/main/autocnv/autocnv_anno.py
 
 # 标准进入点
-USER vep
 ENTRYPOINT ["/bin/bash"]
 
 # 设置环境变量
