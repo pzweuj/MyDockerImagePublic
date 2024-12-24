@@ -3,7 +3,7 @@
 # python3 https://github.com/pzweuj/MyDockerImagePublic/blob/main/autocnv/create-database.py
 
 # 需要mount进所有目录
-# docker run -it --rm -v /autocnv_data:/opt/autocnv/data -v /vep_data:/root/.vep -v /ref_data:/ref_data autocnv:20241223
+# docker run -it --rm -v /autocnv_data:/opt/autocnv/data -v /vep_data:/root/.vep -v /ref_data:/ref_data pzweuj/autocnv:vep112_4
 
 # 第一个命令，先调整autopvs1的配置文件
 # cp self.config.ini /opt/autopvs1/config.ini
@@ -39,18 +39,24 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip && \
     pandas \
     pyfaidx \
     pysam \
-    gtfparse==1.2.1
+    gtfparse==1.2.1 \
+    tqdm \
+    openpyxl
 
 # 切换工作目录
 WORKDIR /opt
 
 # 安装AutoPVS1 || 注意python版本
 RUN git clone -b dev https://github.com/pzweuj/autopvs1.git && \
-    chmod -R 777 /opt/autopvs1
+    chmod -R 777 /opt/autopvs1 && \
+    cd /opt/autopvs1/autopvs1 && \
+    ln -s . autopvs1
 
 # 安装AutoCNV
 RUN git clone -b dev https://github.com/pzweuj/autocnv.git && \
-    chmod -R 777 /opt/autocnv
+    chmod -R 777 /opt/autocnv && \
+    cd /opt/autocnv/autocnv && \
+    ln -s . autocnv
 
 # 加入其他文件
 RUN cd /opt/autocnv && \
