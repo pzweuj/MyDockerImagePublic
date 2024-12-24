@@ -44,17 +44,17 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip && \
 # 切换工作目录
 WORKDIR /opt
 
-# 安装AutoPVS1 || 这个版本更新了import方案，更合适
+# 安装AutoPVS1 || 注意python版本
 RUN git clone -b dev https://github.com/pzweuj/autopvs1.git && \
     cd autopvs1 && \
     python3 setup.py install && \
-    chmod -R 777 /usr/local/lib/python3*/site-packages/autopvs1
+    chmod -R 777 /usr/local/lib/python3.10/dist-packages/autopvs1
 
 # 安装AutoCNV
 RUN git clone -b dev https://github.com/pzweuj/autocnv.git && \
     cd autocnv && \
     python3 setup.py install && \
-    chmod -R 777 /usr/local/lib/python3*/site-packages/autocnv
+    chmod -R 777 /usr/local/lib/python3.10/dist-package/autocnv
 
 # 标准进入点
 USER vep
