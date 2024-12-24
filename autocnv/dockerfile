@@ -54,7 +54,7 @@ RUN git clone -b dev https://github.com/pzweuj/autopvs1.git && \
 RUN git clone -b dev https://github.com/pzweuj/autocnv.git && \
     cd autocnv && \
     python3 setup.py install && \
-    chmod -R 777 /usr/local/lib/python3.10/dist-package/autocnv-0.1.0-py3.10.egg
+    chmod -R 777 /usr/local/lib/python3.10/dist-packages/autocnv-0.1.0-py3.10.egg
 
 # 标准进入点
 USER vep
