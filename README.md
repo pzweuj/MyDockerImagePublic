@@ -34,3 +34,8 @@ python /opt/conda/bin/cnvkit_params_modify.py --force_rewrite True --GC_MIN_FRAC
 ### AutoMap
 
 用于WES的ROH检测软件。
+
+### AutoCNV
+
+AutoCNV的封装版本，部分数据库缺失。
+
