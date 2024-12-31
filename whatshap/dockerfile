@@ -1,7 +1,9 @@
 FROM alpine:3.20.3
 
 # 安装必要的依赖
-RUN apk add --no-cache python3 py3-pip htslib-tools bash
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
+    apk update && \
+    apk add --no-cache python3 py3-pip htslib-tools
 
 # 安装tabix和whatshap
 RUN python3 -m venv /venv && \
