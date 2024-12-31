@@ -8,6 +8,7 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/reposit
 # 安装tabix和whatshap
 RUN python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --no-cache-dir --upgrade pip && \
+    /opt/venv/bin/pip install --no-cache-dir "cython==0.29.36" && \
     /opt/venv/bin/pip install --no-cache-dir pysam==0.18.0 whatshap
 ENV PATH="/opt/venv/bin:$PATH"
 
