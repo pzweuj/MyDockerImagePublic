@@ -39,3 +39,7 @@ python /opt/conda/bin/cnvkit_params_modify.py --force_rewrite True --GC_MIN_FRAC
 
 AutoCNV的封装版本，部分数据库缺失。
 
+### Whatshap
+
+单倍型计算软件WhatsHap镜像，包含tabix、bgzip。
+
