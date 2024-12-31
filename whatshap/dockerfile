@@ -1,0 +1,13 @@
+FROM alpine:3.20.3
+
+# 安装必要的依赖
+RUN apk add --no-cache python3 py3-pip tabix bash
+
+# 安装tabix和whatshap
+RUN python3 -m venv /venv && \
+    pip install whatshap
+ENV PATH="/venv/bin:$PATH"
+
+# 默认命令
+CMD ["whatshap", "--help"]
+LABEL maintainer="pzweuj" version="2.3" description="whatshap with tabix"
