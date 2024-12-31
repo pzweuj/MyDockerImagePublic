@@ -1,7 +1,7 @@
 FROM alpine:3.20.3
 
 # 安装必要的依赖
-RUN apk add --no-cache python3 py3-pip tabix bash
+RUN apk add --no-cache python3 py3-pip htslib-tools bash
 
 # 安装tabix和whatshap
 RUN python3 -m venv /venv && \
