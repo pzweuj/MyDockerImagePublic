@@ -1,9 +1,10 @@
-FROM python:3.9-slim
+# 第一阶段：构建
+FROM python:3.9-slim AS builder
 
 # 安装必要的依赖
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        gcc zlib1g-dev libbz2-dev liblzma-dev libhts-dev tabix && \
+        gcc zlib1g-dev libhts-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -11,7 +12,20 @@ RUN apt-get update && \
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir whatshap
 
+# 第二阶段：最终镜像
+FROM python:3.9-slim
+
+# 从第一阶段复制必要的文件
+COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=builder /usr/local/bin/whatshap /usr/local/bin/whatshap
+
+# 安装运行时依赖
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        zlib1g libhts3 tabix && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # 默认命令
 CMD ["whatshap", "--help"]
-
 LABEL maintainer="pzweuj" version="2.3" description="whatshap with tabix"
