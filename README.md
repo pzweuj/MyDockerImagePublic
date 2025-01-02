@@ -31,6 +31,17 @@ cnvkit改版，增加一个脚本用于调整params参数。注意，官方不�
 python /opt/conda/bin/cnvkit_params_modify.py --force_rewrite True --GC_MIN_FRACTION 0.25
 ```
 
+增加了一个调整自动检测性别时，将默认按antitarget检测修改为默认按target检测的参数
+
+```bash
+python /opt/conda/bin/cnvkit_params_modify.py --reference_auto_model True
+```
+
+如果使用的是singularity，在使用exec运行时，需加入--writable-tmpfs参数，示例
+```bash
+singularity exec --writable-tmpfs cnvkit_v0.9.11.p4.sif bash -c "python /opt/conda/bin/cnvkit_params_modify.py --reference_auto_model True && cnvkit.py reference coverage/*.{,anti}targetcoverage.cnn --fasta human_g1k_v37_decoy.fasta -o reference.cnn"
+```
+
 ### AutoMap
 
 用于WES的ROH检测软件。
