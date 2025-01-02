@@ -5,6 +5,7 @@
 
 import os
 import argparse
+import shutil
 
 # 获取当前文件的绝对路径
 def get_current_file_path():
@@ -47,6 +48,22 @@ SUPPORTED_GENOMES_FOR_PAR_HANDLING = PSEUDO_AUTSOMAL_REGIONS.keys()
     with open(file_path, 'w') as file:
         file.write(content)
 
+# reference的自动模型首选从antitarget修改为target
+def modify_reference_auto_model(file_path, new_file_path):
+    with open(file_path, 'r') as ori, open(new_file_path, 'w') as new:
+        for line in ori:
+            if "preferring antitargets" in line:
+                new.write(line.replace("preferring antitargets", "preferring targets"))
+            elif "sexes[sid] = a_is_xx" in line:
+                new.write(line.replace("sexes[sid] = a_is_xx", "sexes[sid] = t_is_xx"))
+            else:
+                new.write(line)
+    # 先保存一个备份，不删除原文件
+    shutil.copy(file_path, file_path + ".bak")
+
+    # 将旧的替换成新的
+    shutil.move(new_file_path, file_path)
+
 # 传参模式
 def main():
     parser = argparse.ArgumentParser(description="Generate CNVkit parameters file")
@@ -58,12 +75,18 @@ def main():
     parser.add_argument("--GC_MAX_FRACTION", type=str, help="Maximum GC fraction", default="0.7")
     parser.add_argument("--INSERT_SIZE", type=str, help="Insert size", default="250")
     parser.add_argument("--force_rewrite", type=bool, help="Force rewrite", default=False)
+    parser.add_argument("--reference_auto_model", type=bool, help="Change reference auto model to prefer targets", default=False)
 
     args = parser.parse_args()
     generate_cnvkit_params_file(args.file_path, args.MIN_REF_COVERAGE, args.MAX_REF_SPREAD, args.NULL_LOG2_COVERAGE, args.GC_MIN_FRACTION, args.GC_MAX_FRACTION, args.INSERT_SIZE, args.force_rewrite)
-    
+
+    if args.reference_auto_model:
+        print("Reference auto model is True, modifying reference auto model")
+        modify_reference_auto_model("/opt/conda/lib/python3.10/site-packages/cnvlib/reference.py", "/opt/conda/lib/python3.10/site-packages/cnvlib/reference_new.py")
+
     # 没有输入时参数时打印目前所有的参数
     print("Usage: python cnvkit_params_modify.py --file_path <path_to_output_file> --force_rewrite True\n\n")
+    print("Change reference auto model to prefer targets: python cnvkit_params_modify.py --reference_auto_model True")
     print("Current parameters:", f"{args.file_path}")
     print(f"MIN_REF_COVERAGE: {args.MIN_REF_COVERAGE}")
     print(f"MAX_REF_SPREAD: {args.MAX_REF_SPREAD}")
