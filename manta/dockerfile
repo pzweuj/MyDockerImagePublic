@@ -2,17 +2,16 @@
 # https://github.com/Illumina/manta
 # v1.6.0
 
-FROM alpine:3.20.3
+FROM alpine:3.13
 MAINTAINER pzweuj
 
 # 安装依赖
 RUN apk update && \
     apk add --no-cache \
+    python2 \
     wget \
     bash \
-    bzip2 \
-    py2-pip && \
-    ln -s /usr/bin/python2.7 /usr/bin/python2 && \
+    bzip2 && \
     rm -rf /var/cache/apk/*
 
 # Manta 1.6.0
