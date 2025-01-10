@@ -2,18 +2,16 @@
 # https://github.com/Illumina/manta
 # v1.6.0
 
-FROM alpine:3.13
+FROM centos:6
 MAINTAINER pzweuj
 
 # 安装依赖
-RUN apk update && \
-    apk add --no-cache \
+RUN yum install -y \
     python2 \
     wget \
     bash \
-    gcompat \
     bzip2 && \
-    rm -rf /var/cache/apk/*
+    yum clean all
 
 # Manta 1.6.0
 WORKDIR /software
