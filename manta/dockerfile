@@ -11,6 +11,7 @@ RUN apk update && \
     python2 \
     wget \
     bash \
+    gcompat \
     bzip2 && \
     rm -rf /var/cache/apk/*
 
