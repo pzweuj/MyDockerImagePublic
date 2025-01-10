@@ -8,10 +8,11 @@ MAINTAINER pzweuj
 # 安装依赖
 RUN apk update && \
     apk add --no-cache \
-    python2 \
     wget \
     bash \
-    bzip2 && \
+    bzip2 \
+    py2-pip && \
+    ln -s /usr/bin/python2.7 /usr/bin/python2 && \
     rm -rf /var/cache/apk/*
 
 # Manta 1.6.0
