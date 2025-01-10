@@ -5,6 +5,10 @@
 FROM centos:6
 MAINTAINER pzweuj
 
+# 更新镜像源为Vault源
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo && \
+    sed -i 's|#baseurl=http://mirror.centos.org/centos/$releasever|baseurl=http://vault.centos.org/6.10|g' /etc/yum.repos.d/CentOS-*.repo
+
 # 安装依赖
 RUN yum install -y \
     python2 \
