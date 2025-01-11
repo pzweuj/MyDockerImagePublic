@@ -54,7 +54,7 @@ AutoCNV的封装版本，部分数据库缺失。
 
 单倍型计算软件WhatsHap镜像，包含tabix、bgzip。
 
-### manta
+### Manta
 
 Illumina推出的SV检测工具。
 
