@@ -18,7 +18,8 @@ RUN apk update && \
     isa-l \
     libdeflate-dev \
     isa-l-dev \
-    util-linux
+    util-linux \
+    libc6-compat
 
 WORKDIR /software
 
