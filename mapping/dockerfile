@@ -71,8 +71,8 @@ RUN wget https://github.com/OpenGene/fastp/archive/refs/heads/master.zip && \
 # bwa-mem2
 RUN wget https://github.com/bwa-mem2/bwa-mem2/releases/download/v2.3/bwa-mem2-2.3_x64-linux.tar.bz2 && \
     tar -jxvf bwa-mem2-2.3_x64-linux.tar.bz2 && \
-    mv bwa-mem2-2.3_x64-linux/bwa-mem2 /usr/local/bin/ && \
-    chmod 777 /usr/local/bin/bwa-mem2
+    mv bwa-mem2-2.3_x64-linux/bwa-mem2* /usr/local/bin/ && \
+    chmod 777 /usr/local/bin/bwa-mem2*
 
 # mosdepth D4
 RUN wget https://github.com/brentp/mosdepth/releases/download/v0.3.11/mosdepth_d4 && \
