@@ -74,12 +74,12 @@ RUN wget https://github.com/bwa-mem2/bwa-mem2/releases/download/v2.3/bwa-mem2-2.
     chmod 777 /usr/local/bin/bwa-mem2
 
 # mosdepth D4
-RNN wget https://github.com/brentp/mosdepth/releases/download/v0.3.11/mosdepth_d4 && \
+RUN wget https://github.com/brentp/mosdepth/releases/download/v0.3.11/mosdepth_d4 && \
     mv mosdepth_d4 /usr/local/bin/ && \
     chmod 777 /usr/local/bin/mosdepth_d4
 
 # mosdepth D4
-RNN wget https://github.com/brentp/mosdepth/releases/download/v0.3.11/mosdepth && \
+RUN wget https://github.com/brentp/mosdepth/releases/download/v0.3.11/mosdepth && \
     mv mosdepth /usr/local/bin/ && \
     chmod 777 /usr/local/bin/mosdepth
 
