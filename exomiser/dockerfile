@@ -1,0 +1,41 @@
+# Exomiser Dockerfile
+FROM ubuntu/jre:21-24.04
+
+# 安装必要的工具
+RUN apt-get update && \
+    apt-get install -y wget unzip yq && \
+    rm -rf /var/lib/apt/lists/*
+
+# 下载并解压 Exomiser 到指定路径
+RUN wget https://github.com/exomiser/Exomiser/releases/download/14.1.0/exomiser-cli-14.1.0-distribution.zip && \
+    unzip exomiser-cli-14.1.0-distribution.zip && \
+    rm exomiser-cli-14.1.0-distribution.zip && \
+    mv exomiser-cli-14.1.0 /exomiser-cli-14.1.0
+
+# 设置执行权限
+RUN chmod +x /exomiser-cli-14.1.0/exomiser-cli-14.1.0.jar
+
+# 创建必要的目录
+RUN mkdir -p /run_data /deploy
+
+# 创建配置目录并准备默认配置
+RUN mkdir -p /exomiser-cli-14.1.0/config
+
+# 设置环境变量
+ENV JAVA_OPTS="-Xmx4g"
+
+# 设置工作目录
+WORKDIR /deploy
+
+# 复制运行脚本（在构建时从部署目录复制）
+COPY run_exomiser.sh /deploy/
+COPY default.yaml /exomiser-cli-14.1.0/config/default.yaml
+
+# 设置脚本执行权限
+RUN chmod +x /deploy/run_exomiser.sh
+
+# 设置入口点为运行脚本
+ENTRYPOINT ["/deploy/run_exomiser.sh"]
+
+# 默认显示帮助
+CMD ["--help"]
