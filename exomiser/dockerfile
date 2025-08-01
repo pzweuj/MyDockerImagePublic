@@ -1,4 +1,4 @@
-# Exomiser Dockerfile
+i# Exomiser Dockerfile
 FROM ubuntu/jre:21-24.04
 
 # 安装必要的工具
@@ -28,8 +28,8 @@ ENV JAVA_OPTS="-Xmx4g"
 WORKDIR /deploy
 
 # 复制运行脚本（在构建时从部署目录复制）
-COPY run_exomiser.sh /deploy/
-COPY default.yaml /exomiser-cli-14.1.0/config/default.yaml
+COPY exomiser/run_exomiser.sh /deploy/
+COPY exomiser/default.yaml /exomiser-cli-14.1.0/config/default.yaml
 
 # 设置脚本执行权限
 RUN chmod +x /deploy/run_exomiser.sh
