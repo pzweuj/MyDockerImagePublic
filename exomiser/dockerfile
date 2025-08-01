@@ -1,4 +1,4 @@
-i# Exomiser Dockerfile
+# Exomiser Dockerfile
 FROM ubuntu/jre:21-24.04
 
 # 安装必要的工具
