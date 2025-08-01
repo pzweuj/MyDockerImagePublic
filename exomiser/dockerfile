@@ -3,8 +3,10 @@ FROM ubuntu/jre:21-24.04
 
 # 安装必要的工具
 RUN apt-get update && \
-    apt-get install -y wget unzip yq bash && \
+    apt-get install -y wget unzip bash curl && \
     rm -rf /var/lib/apt/lists/* && \
+    wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.47.1/yq_linux_amd64 && \
+    chmod +x /usr/local/bin/yq && \
     ln -sf /bin/bash /bin/sh || true
 
 # 下载并解压 Exomiser 到指定路径
