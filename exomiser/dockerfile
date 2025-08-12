@@ -1,9 +1,14 @@
 # Exomiser Dockerfile
-FROM ubuntu/jre:21-24.04
+FROM ubuntu:24.04
 
-# 安装必要的工具
+# 确保基础镜像正常并安装 JRE 和必要的工具
 RUN apt-get update && \
     apt-get install -y wget unzip bash curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# 单独安装 JRE 以便更好地调试
+RUN apt-get update && \
+    apt-get install -y openjdk-21-jre-headless && \
     rm -rf /var/lib/apt/lists/*
 
 # 安装yq
