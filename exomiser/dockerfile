@@ -16,7 +16,8 @@ RUN wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download
     chmod +x /usr/local/bin/yq
 
 # 下载并解压 Exomiser 到指定路径
-RUN wget https://github.com/exomiser/Exomiser/releases/download/14.1.0/exomiser-cli-14.1.0-distribution.zip && \
+RUN cd /tmp && \
+    wget https://github.com/exomiser/Exomiser/releases/download/14.1.0/exomiser-cli-14.1.0-distribution.zip && \
     unzip exomiser-cli-14.1.0-distribution.zip && \
     rm exomiser-cli-14.1.0-distribution.zip && \
     mv exomiser-cli-14.1.0 /exomiser-cli-14.1.0
