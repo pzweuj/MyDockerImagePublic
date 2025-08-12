@@ -58,3 +58,7 @@ AutoCNV的封装版本，部分数据库缺失。
 
 Illumina推出的SV检测工具。
 
+### Exomiser
+
+基于ACMG的有害性预测工具。
+
