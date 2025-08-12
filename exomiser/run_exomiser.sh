@@ -4,10 +4,13 @@
 # 20250728
 # 一并封装到exomiser的镜像里，因此调用的是镜像中的路径
 
+# 获取Exomiser版本号（从环境变量或默认值）
+EXOMISER_VERSION=${EXOMISER_VERSION:-"14.1.0"}
+
 # 默认值
-DEFAULT_YAML="/exomiser-cli-14.1.0/config/default.yaml"
+DEFAULT_YAML="/exomiser-cli-${EXOMISER_VERSION}/config/default.yaml"
 RUNNING_DIR="/run_data"
-APPLICATION_PROPERTIES="/exomiser-cli-14.1.0/application.properties"
+APPLICATION_PROPERTIES="/exomiser-cli-${EXOMISER_VERSION}/application.properties"
 
 # 显示帮助信息
 show_help() {
@@ -176,10 +179,10 @@ fi
 
 # 运行Exomiser
 echo "开始运行Exomiser..."
-java -jar /exomiser-cli-14.1.0/exomiser-cli-14.1.0.jar \
+java -jar /exomiser-cli-${EXOMISER_VERSION}/exomiser-cli-${EXOMISER_VERSION}.jar \
     --analysis "$CONFIG_YAML" \
     --output-directory "$OUTPUT_DIR" \
     --output-filename "$SAMPLE_ID" \
-    --spring.config.location=/exomiser-cli-14.1.0/application.properties
+    --spring.config.location=/exomiser-cli-${EXOMISER_VERSION}/application.properties
 
 echo "Exomiser运行完成"
