@@ -62,3 +62,7 @@ Illumina推出的SV检测工具。
 
 基于ACMG的有害性预测工具。
 
+### MSIsensor-pro
+
+NGS微卫星不稳定分析工具。
+
