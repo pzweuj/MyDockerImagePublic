@@ -1,6 +1,6 @@
 # mapping
 
-Tag: 2025Jul
+Tag: 2025Dec
 
 Alpine 3.22.1 with fastp, bwa, bwa-mem2, samtools, sambamba, bamdst, mosdepth
 
@@ -15,6 +15,6 @@ samtools 1.22.1
 
 sambamba 1.0.1
 
-bamdst 1.1.0
+bamdst 1.2.0
 
 mosdepth 0.3.11
