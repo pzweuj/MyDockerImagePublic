@@ -51,7 +51,7 @@ RUN wget https://github.com/biod/sambamba/releases/download/v1.0.1/sambamba-1.0.
     ln -s /usr/local/bin/sambamba-1.0.1-linux-amd64-static /usr/local/bin/sambamba
 
 # bamdst
-RUN wget https://github.com/shiquan/bamdst/archive/refs/heads/master.zip && \
+RUN wget https://github.com/pzweuj/bamdst/archive/refs/heads/master.zip && \
     unzip master.zip && \
     cd bamdst-master && \
     make && \
