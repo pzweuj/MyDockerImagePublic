@@ -23,6 +23,7 @@ RUN apt-get update && \
     zlib1g-dev \
     libbz2-dev \
     wget \
+    unzip \
     build-essential \
     libncurses-dev \
     xz-utils \
