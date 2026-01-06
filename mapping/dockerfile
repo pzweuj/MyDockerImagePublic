@@ -1,5 +1,5 @@
 # 1. 锁定上游官方版本
-FROM alpine:3.23.2
+FROM ubuntu:24.04
 
 # 2. 注入绳墨生物的"基因"
 LABEL maintainer="Schema Bio"
@@ -15,28 +15,26 @@ ARG BWA_MEM2_VERSION=2.3
 ARG MOSDEPTH_VERSION=0.3.12
 
 # Install necessary packages
-RUN apk update && \
-    apk add --no-cache \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     bash \
     vim \
     ca-certificates \
-    zlib-dev \
-    bzip2-dev \
+    zlib1g-dev \
+    libbz2-dev \
     wget \
-    build-base \
-    ncurses-dev \
-    xz-dev \
+    build-essential \
+    libncurses-dev \
+    xz-utils \
     coreutils \
-    libdeflate \
-    isa-l \
     libdeflate-dev \
-    isa-l-dev \
-    util-linux \
-    libc6-compat \
+    libisa-l-dev \
+    libdeflate-dev \
+    libtool \
     autoconf \
     automake \
-    libtool \
-    musl-dev
+    git \
+    ca-certificates
 
 WORKDIR /software
 
@@ -86,23 +84,15 @@ RUN wget https://github.com/shiquan/bamdst/archive/refs/heads/master.zip && \
     rm -rf /software/master.zip && \
     rm -rf /software/bamdst-master
 
-# xamdst - needs htslib (compiled from source)
-RUN apk add --no-cache git && \
-    apk add --no-cache wget && \
-    git clone https://github.com/samtools/htslib.git && \
-    cd htslib && \
-    git checkout 4.0 && \
-    make -j$(nproc) && \
-    make install && \
-    ldconfig && \
-    cd .. && \
+# xamdst - using htslib-dev package
+RUN apt-get install -y libhts-dev && \
     git clone https://github.com/pzweuj/xamdst.git && \
     cd xamdst && \
     make && \
     cp xamdst /usr/local/bin/ && \
-    rm -rf /software/htslib /software/xamdst
+    rm -rf /software/xamdst
 
-# fastp v1.0.1
+# fastp
 RUN wget https://github.com/OpenGene/fastp/archive/refs/heads/master.zip && \
     unzip master.zip && \
     cd fastp-master && \
