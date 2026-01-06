@@ -88,6 +88,7 @@ RUN wget https://github.com/shiquan/bamdst/archive/refs/heads/master.zip && \
 RUN apt-get install -y libhts-dev pkg-config && \
     git clone https://github.com/pzweuj/xamdst.git && \
     cd xamdst && \
+    git pull && \
     make && \
     cp xamdst /usr/local/bin/ && \
     rm -rf /software/xamdst
