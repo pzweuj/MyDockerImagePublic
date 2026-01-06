@@ -18,3 +18,5 @@ sambamba 1.0.1
 bamdst 1.2.0
 
 mosdepth 0.3.11
+
+xamdst 2.0.0
