@@ -2,7 +2,7 @@
 
 Tag: 2026Jan
 
-Alpine 3.22.1 with fastp, bwa, bwa-mem2, samtools, sambamba, bamdst, mosdepth
+Ubuntu 22.04 with fastp, bwa, bwa-mem2, samtools, sambamba, bamdst, xamdst, mosdepth
 
 ## 整体版本
 fastp 1.0.1
