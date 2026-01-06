@@ -74,7 +74,7 @@ RUN wget https://github.com/biod/sambamba/releases/download/v${SAMBAMBA_VERSION}
     ln -s /usr/local/bin/sambamba-${SAMBAMBA_VERSION}-linux-amd64-static /usr/local/bin/sambamba
 
 # bamdst
-RUN wget https://github.com/pzweuj/bamdst/archive/refs/heads/master.zip && \
+RUN wget https://github.com/shiquan/bamdst/archive/refs/heads/master.zip && \
     unzip master.zip && \
     cd bamdst-master && \
     make && \
