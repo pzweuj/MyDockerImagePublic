@@ -28,13 +28,10 @@ RUN apt-get update && \
     xz-utils \
     coreutils \
     libdeflate-dev \
-    libisa-l-dev \
-    libdeflate-dev \
     libtool \
     autoconf \
     automake \
-    git \
-    ca-certificates
+    git
 
 WORKDIR /software
 
