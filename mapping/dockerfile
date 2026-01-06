@@ -32,7 +32,11 @@ RUN apk update && \
     libdeflate-dev \
     isa-l-dev \
     util-linux \
-    libc6-compat
+    libc6-compat \
+    autoconf \
+    automake \
+    libtool \
+    musl-dev
 
 WORKDIR /software
 
@@ -82,14 +86,21 @@ RUN wget https://github.com/shiquan/bamdst/archive/refs/heads/master.zip && \
     rm -rf /software/master.zip && \
     rm -rf /software/bamdst-master
 
-# xamdst - needs htslib
-RUN apk add --no-cache htslib-dev && \
-    apk add --no-cache git && \
+# xamdst - needs htslib (compiled from source)
+RUN apk add --no-cache git && \
+    apk add --no-cache wget && \
+    git clone https://github.com/samtools/htslib.git && \
+    cd htslib && \
+    git checkout 4.0 && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig && \
+    cd .. && \
     git clone https://github.com/pzweuj/xamdst.git && \
     cd xamdst && \
     make && \
     cp xamdst /usr/local/bin/ && \
-    rm -rf /software/xamdst
+    rm -rf /software/htslib /software/xamdst
 
 # fastp v1.0.1
 RUN wget https://github.com/OpenGene/fastp/archive/refs/heads/master.zip && \
