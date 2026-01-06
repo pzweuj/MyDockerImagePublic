@@ -93,14 +93,9 @@ RUN apt-get install -y libhts-dev pkg-config && \
     cp xamdst /usr/local/bin/ && \
     rm -rf /software/xamdst
 
-# fastp
-RUN wget https://github.com/OpenGene/fastp/archive/refs/heads/master.zip && \
-    unzip master.zip && \
-    cd fastp-master && \
-    make -j && \
-    make install && \
-    rm -rf /software/master.zip && \
-    rm -rf /software/fastp-master
+# fastp - prebuilt binary
+RUN wget -O /usr/local/bin/fastp http://opengene.org/fastp/fastp && \
+    chmod a+x /usr/local/bin/fastp
 
 # bwa-mem2
 RUN wget https://github.com/bwa-mem2/bwa-mem2/releases/download/v${BWA_MEM2_VERSION}/bwa-mem2-${BWA_MEM2_VERSION}_x64-linux.tar.bz2 && \
