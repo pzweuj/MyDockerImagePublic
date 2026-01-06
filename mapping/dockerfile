@@ -82,8 +82,9 @@ RUN wget https://github.com/shiquan/bamdst/archive/refs/heads/master.zip && \
     rm -rf /software/master.zip && \
     rm -rf /software/bamdst-master
 
-# xamdst
-RUN apk add --no-cache git && \
+# xamdst - needs htslib
+RUN apk add --no-cache htslib-dev && \
+    apk add --no-cache git && \
     git clone https://github.com/pzweuj/xamdst.git && \
     cd xamdst && \
     make && \
