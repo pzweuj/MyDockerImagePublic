@@ -1,16 +1,11 @@
 # 构建镜像
-FROM golang:1.21ubuntu AS builder
-
-# 安装依赖
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git bcftools libhts-dev \
-    && rm -rf /var/lib/apt/lists/*
+FROM golang:1.21 AS builder
 
 WORKDIR /app
 
 # 复制并编译
 COPY clean_gnomad.go .
-RUN go build -o clean_gnomad clean_gnomad.go
+RUN CGO_ENABLED=1 go build -o clean_gnomad clean_gnomad.go
 
 # 运行镜像
 FROM ubuntu:22.04
