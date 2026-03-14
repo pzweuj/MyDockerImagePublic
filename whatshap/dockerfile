@@ -9,7 +9,7 @@ FROM python:3.9-slim AS builder
 # 安装必要的依赖
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        gcc zlib1g-dev libhts-dev wget && \
+        gcc zlib1g-dev libhts-dev wget tar && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -21,10 +21,10 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 RUN wget -O /usr/local/bin/merge_mnp.py \
     https://github.com/Sentieon/sentieon-scripts/raw/refs/heads/master/merge_mnp/merge_mnp.py && \
     chmod +x /usr/local/bin/merge_mnp.py && \
-    wget -O /tmp/vcflib.tar.gz https://github.com/Sentieon/vcflib/archive/refs/heads/master.tar.gz && \
+    wget -O /tmp/vcflib.tar.gz https://github.com/Sentieon/vcflib/archive/refs/heads/main.tar.gz && \
     tar -xzf /tmp/vcflib.tar.gz -C /tmp && \
-    mv /tmp/vcflib-master/vcflib /usr/local/bin/ && \
-    rm -rf /tmp/vcflib.tar.gz /tmp/vcflib-master
+    mv /tmp/vcflib-main/vcflib /usr/local/bin/ && \
+    rm -rf /tmp/vcflib.tar.gz /tmp/vcflib-main
 
 # 第二阶段：最终镜像
 FROM python:3.9-slim
