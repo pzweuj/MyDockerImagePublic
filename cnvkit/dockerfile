@@ -3,7 +3,7 @@ FROM etal/cnvkit:0.9.13
 
 # 切换用户调整脚本权限
 USER root
-RUN chmod -R 777 /opt/conda/lib/python3.10/site-packages/cnvlib
+RUN chmod -R 777 /opt/conda/lib/python3.14/site-packages/cnvlib
 
 # 安装补丁
 RUN wget -O /opt/conda/bin/cnvkit_params_modify.py https://github.com/pzweuj/MyDockerImagePublic/raw/refs/heads/main/cnvkit/cnvkit_params_modify.py
