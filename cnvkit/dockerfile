@@ -1,5 +1,5 @@
 # 基础镜像
-FROM etal/cnvkit:0.9.11
+FROM etal/cnvkit:0.9.13
 
 # 切换用户调整脚本权限
 USER root
@@ -8,9 +8,14 @@ RUN chmod -R 777 /opt/conda/lib/python3.10/site-packages/cnvlib
 # 安装补丁
 RUN wget -O /opt/conda/bin/cnvkit_params_modify.py https://github.com/pzweuj/MyDockerImagePublic/raw/refs/heads/main/cnvkit/cnvkit_params_modify.py
 
+# 安装bedtools
+RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.static && \
+  mv bedtools.static /usr/bin/bedtools && \
+  chmod a+x /usr/bin/bedtools
+
 # 切换回去
 USER ubuntu
 CMD ["bash"]
 
 # Maintainer
-LABEL author="Eric Talevich <52723+etal@users.noreply.github.com>" maintainer="pzweuj" version="v0.9.11.p4" 
+LABEL author="Eric Talevich <52723+etal@users.noreply.github.com>" maintainer="pzweuj" version="v0.9.13" 
