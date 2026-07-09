@@ -4,7 +4,7 @@ FROM ubuntu:22.04
 # 2. 注入绳墨生物的"基因"
 LABEL maintainer="Schema Bio"
 LABEL vendor="Schema Bio"
-LABEL schema.version="20260106"
+LABEL schema.version="20260709"
 
 # 3. 版本号定义 - 方便后续更新
 ARG SAMTOOLS_VERSION=1.23
@@ -12,7 +12,7 @@ ARG BCFTOOLS_VERSION=1.23
 ARG BWA_VERSION=0.7.19
 ARG SAMBAMBA_VERSION=1.0.1
 ARG BWA_MEM2_VERSION=2.3
-ARG MOSDEPTH_VERSION=0.3.12
+ARG MOSDEPTH_VERSION=0.3.14
 
 # Install necessary packages
 RUN apt-get update && \
@@ -93,7 +93,7 @@ RUN apt-get install -y libhts-dev pkg-config && \
     cp xamdst /usr/local/bin/ && \
     rm -rf /software/xamdst
 
-# fastp - prebuilt binary
+# fastp - prebuilt binary - 1.3.6
 RUN wget -O /usr/local/bin/fastp http://opengene.org/fastp/fastp && \
     chmod a+x /usr/local/bin/fastp
 
