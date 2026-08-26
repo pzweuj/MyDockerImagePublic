@@ -1,8 +1,8 @@
 # mapping
 
-Tag: 2026Jul
+Tag: 2026Aug
 
-Ubuntu 22.04 with fastp, bwa, bwa-mem2, samtools, sambamba, bamdst, xamdst, mosdepth
+Ubuntu 22.04 with fastp, bwa, bwa-mem2, samtools, sambamba, bamdst, xamdst, mosdepth, minibwa
 
 ## 整体版本
 fastp 1.3.6
@@ -20,3 +20,5 @@ sambamba 1.0.1
 mosdepth 0.3.14
 
 xamdst 2.0.1
+
+minibwa 0.7
