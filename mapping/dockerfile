@@ -70,13 +70,13 @@ RUN wget https://github.com/lh3/bwa/archive/refs/tags/v${BWA_VERSION}.zip && \
     rm -rf /software/bwa-${BWA_VERSION}
 
 # minibwa
-RUN wget https://github.com/lh3/minibwa/releases/download/v${MINIBWA_VERSION}/minibwa-${MINIBWA_VERSION}_x64-linux.tar.bz2 && \
-    tar -jxvf minibwa-${MINIBWA_VERSION}_x64-linux.tar.bz2 && \
-    rm minibwa-${MINIBWA_VERSION}_x64-linux.tar.bz2 && \
-    cd minibwa-${MINIBWA_VERSION}_x64-linux && \
+RUN wget https://github.com/lh3/minibwa/releases/download/v${MINIBWA_VERSION}/minibwa-${MINIBWA_VERSION}.tar.bz2 && \
+    tar -jxvf minibwa-${MINIBWA_VERSION}.tar.bz2 && \
+    rm minibwa-${MINIBWA_VERSION}.tar.bz2 && \
+    cd minibwa-${MINIBWA_VERSION} && \
     make && \
     cp minibwa /usr/local/bin/ && \
-    rm -rf /software/minibwa-${MINIBWA_VERSION}_x64-linux
+    rm -rf /software/minibwa-${MINIBWA_VERSION}
 
 # sambamba
 RUN wget https://github.com/biod/sambamba/releases/download/v${SAMBAMBA_VERSION}/sambamba-${SAMBAMBA_VERSION}-linux-amd64-static.gz && \
