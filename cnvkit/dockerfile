@@ -3,7 +3,6 @@
 # 本镜像额外提供 bedtools，以及只定点修改 cnvlib/params.py 的脚本。
 # 不修改 reference.py。性别冲突由上游 _reconcile_sex_guesses() 处理。
 # CI 的构建上下文是仓库根目录：
-#   docker build -f cnvkit/dockerfile -t cnvkit:0.9.14 .
 FROM etal/cnvkit:0.9.14
 
 USER root
