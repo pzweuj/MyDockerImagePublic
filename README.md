@@ -46,26 +46,37 @@
 
 ### CNVkit 参数调整说明
 
-CNVkit 改版增加了参数调整脚本，用于优化 CNV 检测精度。
+镜像基座为 CNVkit v0.9.14。参数脚本只修改 `cnvlib/params.py` 里的六个常量，不覆盖文件其余内容，也不再修改 `reference.py`。
 
-> ⚠️ **注意**：官方不建议调整该参数，但当进行高分辨率的 CNV 检测时，较低/较高的 GC 比例设定可能会导致一些真实 CNV 区域被过滤掉，请谨慎进行调整。
+> 官方不建议调整这些常量。高分辨率检测时，GC 比例过窄可能滤掉真实 CNV 区域，请先用固定 BAM 和 BED 对比后再用于生产。
 
-**调整 GC 比例参数示例：**
+**查看当前生效值：**
+
+```bash
+python /opt/conda/bin/cnvkit_params_modify.py
+```
+
+**调整 GC 比例：**
+
 ```bash
 python /opt/conda/bin/cnvkit_params_modify.py --force_rewrite True --GC_MIN_FRACTION 0.25
 ```
 
-**调整自动检测性别参数：**
-将默认按 antitarget 检测修改为默认按 target 检测
-```bash
-python /opt/conda/bin/cnvkit_params_modify.py --reference_auto_model True
-```
+`--force_rewrite True` 可以省略。`--force_rewrite False` 不会写文件。
 
-**Singularity 使用示例：**
-使用 `exec` 运行时，需加入 `--writable-tmpfs` 参数
+**性别推断：**
+
+v0.9.14 在 target 与 antitarget 冲突时比较 chrX 证据强度，捕获 panel 上通常采用 target。`--reference_auto_model` 仍可传入，但只打印警告，不再改源码。
+
+用旧补丁生成过的 Reference 不会随镜像升级自动更正。生产 panel 应使用 v0.9.14 重新构建 Reference，并用同一批 BAM、BED 做对比。差异若集中在 chrX/chrY，优先核对性别推断。
+
+**Singularity：**
+
+`exec` 写参数文件时需要 `--writable-tmpfs`。
+
 ```bash
-singularity exec --writable-tmpfs cnvkit_v0.9.11.p4.sif bash -c \
-  "python /opt/conda/bin/cnvkit_params_modify.py --reference_auto_model True && \
+singularity exec --writable-tmpfs cnvkit_v0.9.14.sif bash -c \
+  "python /opt/conda/bin/cnvkit_params_modify.py --GC_MIN_FRACTION 0.25 && \
    cnvkit.py reference coverage/*.{,anti}targetcoverage.cnn \
    --fasta human_g1k_v37_decoy.fasta -o reference.cnn"
 ```

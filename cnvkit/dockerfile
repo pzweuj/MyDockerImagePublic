@@ -1,22 +1,33 @@
-# 基础镜像
-FROM etal/cnvkit:0.9.13
+# CNVkit 0.9.14
+# 上游 etal/cnvkit:0.9.14：conda base、用户 cnvkit、工作目录 /data、Python >= 3.11。
+# 本镜像额外提供 bedtools，以及只定点修改 cnvlib/params.py 的脚本。
+# 不修改 reference.py。性别冲突由上游 _reconcile_sex_guesses() 处理。
+# CI 的构建上下文是仓库根目录：
+#   docker build -f cnvkit/dockerfile -t cnvkit:0.9.14 .
+FROM etal/cnvkit:0.9.14
 
-# 切换用户调整脚本权限
 USER root
-RUN PYTHON_VERSION=$(python3 -c 'import sys; print(f"python{sys.version_info.major}.{sys.version_info.minor}")') && \
-    chmod -R 777 /opt/conda/lib/$PYTHON_VERSION/site-packages/cnvlib
 
-# 安装补丁
-RUN wget -O /opt/conda/bin/cnvkit_params_modify.py https://github.com/pzweuj/MyDockerImagePublic/raw/refs/heads/main/cnvkit/cnvkit_params_modify.py
+# conda-env.yml 不包含 bedtools。使用 Debian 软件包，避免 amd64 静态二进制。
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends bedtools && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# 安装bedtools
-RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.static && \
-  mv bedtools.static /usr/bin/bedtools && \
-  chmod a+x /usr/bin/bedtools
+COPY cnvkit/cnvkit_params_modify.py /opt/conda/bin/cnvkit_params_modify.py
 
-# 切换回去
-USER ubuntu
+# a+w 同时覆盖 Docker 用户 cnvkit，以及 Singularity 映射进来的任意 UID。
+# 目录可写，脚本才能创建 params.py.orig。
+RUN chmod 755 /opt/conda/bin/cnvkit_params_modify.py && \
+    CNVLIB_DIR="$(python3 -c 'import cnvlib, os; print(os.path.dirname(os.path.abspath(cnvlib.__file__)))')" && \
+    chmod -R a+w "$CNVLIB_DIR" && \
+    python3 -c 'import cnvlib; print(cnvlib.__file__)' && \
+    bedtools --version && \
+    cnvkit.py version
+
+USER cnvkit
+WORKDIR /data
 CMD ["bash"]
 
-# Maintainer
-LABEL author="Eric Talevich <52723+etal@users.noreply.github.com>" maintainer="pzweuj" version="v0.9.13" 
+LABEL maintainer="pzweuj" version="v0.9.14" \
+      description="CNVkit 0.9.14 with an in-place params.py patcher and bedtools"

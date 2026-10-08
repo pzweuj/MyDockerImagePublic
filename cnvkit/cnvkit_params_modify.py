@@ -1,100 +1,210 @@
-# coding=utf-8
-# 修改CNVkit的Hard-coded参数
-# 注意，一般都不用修改
-# 除非你有特殊需求
+# coding: utf-8
+"""定点修改 CNVkit params.py 中的六个硬编码常量。
 
-import os
+不重写整个文件，也不修改 reference.py。
+CNVkit 0.9.14 在 _reconcile_sex_guesses() 中比较 target 与 antitarget 的
+chrX 证据。旧的 reference.py 字符串替换不再适用。
+"""
+
+from __future__ import annotations
+
 import argparse
+import ast
+import difflib
+import re
 import shutil
+import sys
+from pathlib import Path
 
-# 获取当前文件的绝对路径
-def get_current_file_path():
-    return os.path.dirname(os.path.abspath(__file__))
+PARAM_TYPES = {
+    "MIN_REF_COVERAGE": float,
+    "MAX_REF_SPREAD": float,
+    "NULL_LOG2_COVERAGE": float,
+    "GC_MIN_FRACTION": float,
+    "GC_MAX_FRACTION": float,
+    "INSERT_SIZE": int,
+}
 
-# 生成 CNVkit 参数文件的 Python 代码
-def generate_cnvkit_params_file(file_path, MIN_REF_COVERAGE, MAX_REF_SPREAD, NULL_LOG2_COVERAGE, GC_MIN_FRACTION, GC_MAX_FRACTION, INSERT_SIZE, force_rewrite):
-    content = f'''\"\"\"Hard-coded parameters for CNVkit. These should not change between runs.\"\"\"
-# Filter thresholds used in constructing the reference (log2 scale)
-MIN_REF_COVERAGE = {MIN_REF_COVERAGE}
-MAX_REF_SPREAD = {MAX_REF_SPREAD}
-NULL_LOG2_COVERAGE = {NULL_LOG2_COVERAGE}
+ASSIGN_RE = re.compile(
+    r"^(?P<name>" + "|".join(PARAM_TYPES) + r")\s*=\s*(?P<value>[^#\n]+)",
+    re.MULTILINE,
+)
 
-# Thresholds used in GC-content masking of bad bins at 'fix' step
-GC_MIN_FRACTION = {GC_MIN_FRACTION}
-GC_MAX_FRACTION = {GC_MAX_FRACTION}
 
-# Fragment size for paired-end reads
-INSERT_SIZE = {INSERT_SIZE}
+def str2bool(value):
+    if isinstance(value, bool):
+        return value
+    text = str(value).strip().lower()
+    if text in {"1", "true", "t", "yes", "y"}:
+        return True
+    if text in {"0", "false", "f", "no", "n"}:
+        return False
+    raise argparse.ArgumentTypeError("expected a boolean, got %r" % (value,))
 
-# Target/bin names that are not meaningful gene names
-# (In some UCSF panels, "CGH" probes denote selected intergenic regions)
-IGNORE_GENE_NAMES = ("-", ".", "CGH")
-ANTITARGET_NAME = "Antitarget"
-ANTITARGET_ALIASES = (ANTITARGET_NAME, "Background")
 
-# PAR1/2 start/end definitions
-PSEUDO_AUTSOMAL_REGIONS = {{
-    "grch37": {{"PAR1X": [60000, 2699520], "PAR2X": [154931043, 155260560], "PAR1Y": [10000, 2649520], "PAR2Y": [59034049, 59363566] }},
-    "grch38": {{"PAR1X": [10000, 2781479], "PAR2X": [155701382, 156030895], "PAR1Y": [10000, 2781479], "PAR2Y": [56887902, 57217415] }},
-}}
-SUPPORTED_GENOMES_FOR_PAR_HANDLING = PSEUDO_AUTSOMAL_REGIONS.keys()
-'''
+def default_params_path():
+    import cnvlib
 
-    # 已存在文件，是否重写
-    if os.path.exists(file_path):
-        if not force_rewrite:
-            return
-    
-    with open(file_path, 'w') as file:
-        file.write(content)
+    return Path(cnvlib.__file__).resolve().parent / "params.py"
 
-# reference的自动模型首选从antitarget修改为target
-def modify_reference_auto_model(file_path, new_file_path):
-    with open(file_path, 'r') as ori, open(new_file_path, 'w') as new:
-        for line in ori:
-            if "preferring antitargets" in line:
-                new.write(line.replace("preferring antitargets", "preferring targets"))
-            elif "sexes[sid] = a_is_xx" in line:
-                new.write(line.replace("sexes[sid] = a_is_xx", "sexes[sid] = t_is_xx"))
-            else:
-                new.write(line)
-    # 先保存一个备份，不删除原文件
-    shutil.copy(file_path, file_path + ".bak")
 
-    # 将旧的替换成新的
-    shutil.move(new_file_path, file_path)
+def read_assignments(text):
+    found = {}
+    for match in ASSIGN_RE.finditer(text):
+        name = match.group("name")
+        if name in found:
+            raise SystemExit("params.py has repeated assignments: %s" % name)
+        found[name] = match.group("value").strip()
+    missing = [name for name in PARAM_TYPES if name not in found]
+    if missing:
+        raise SystemExit("params.py is missing assignments: %s" % ", ".join(missing))
+    return found
 
-# 传参模式
-def main():
-    parser = argparse.ArgumentParser(description="Generate CNVkit parameters file")
-    parser.add_argument("--file_path", type=str, help="Path to the output file", default="/opt/conda/lib/python3.10/site-packages/cnvlib/params.py")
-    parser.add_argument("--MIN_REF_COVERAGE", type=str, help="Minimum reference coverage", default="-5.0")
-    parser.add_argument("--MAX_REF_SPREAD", type=str, help="Maximum reference spread", default="1.0")
-    parser.add_argument("--NULL_LOG2_COVERAGE", type=str, help="NULL log2 coverage", default="-20.0")
-    parser.add_argument("--GC_MIN_FRACTION", type=str, help="Minimum GC fraction", default="0.3")
-    parser.add_argument("--GC_MAX_FRACTION", type=str, help="Maximum GC fraction", default="0.7")
-    parser.add_argument("--INSERT_SIZE", type=str, help="Insert size", default="250")
-    parser.add_argument("--force_rewrite", type=bool, help="Force rewrite", default=False)
-    parser.add_argument("--reference_auto_model", type=bool, help="Change reference auto model to prefer targets", default=False)
 
-    args = parser.parse_args()
-    generate_cnvkit_params_file(args.file_path, args.MIN_REF_COVERAGE, args.MAX_REF_SPREAD, args.NULL_LOG2_COVERAGE, args.GC_MIN_FRACTION, args.GC_MAX_FRACTION, args.INSERT_SIZE, args.force_rewrite)
+def parse_literal(name, raw):
+    try:
+        value = ast.literal_eval(raw)
+    except (SyntaxError, ValueError) as exc:
+        raise SystemExit("cannot parse %s = %r: %s" % (name, raw, exc))
+    expected = PARAM_TYPES[name]
+    if isinstance(value, bool) or not isinstance(value, expected):
+        raise SystemExit(
+            "%s must be %s, got %s" % (name, expected.__name__, type(value).__name__)
+        )
+    return value
 
+
+def validate(values):
+    gc_min = values["GC_MIN_FRACTION"]
+    gc_max = values["GC_MAX_FRACTION"]
+    if not 0.0 <= gc_min < gc_max <= 1.0:
+        raise SystemExit(
+            "GC fraction must satisfy 0 <= GC_MIN_FRACTION < GC_MAX_FRACTION <= 1, "
+            "got %s, %s" % (gc_min, gc_max)
+        )
+    if values["INSERT_SIZE"] <= 0:
+        raise SystemExit("INSERT_SIZE must be a positive integer")
+
+
+def render_value(name, value):
+    if PARAM_TYPES[name] is float:
+        return repr(float(value))
+    return str(int(value))
+
+
+def apply_replacements(text, updates):
+    def repl(match):
+        name = match.group("name")
+        if name not in updates:
+            return match.group(0)
+        return "%s = %s" % (name, render_value(name, updates[name]))
+
+    return ASSIGN_RE.sub(repl, text)
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(
+        description="Patch six hard-coded constants in CNVkit params.py."
+    )
+    parser.add_argument("--file_path", type=Path, default=None)
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--force_rewrite",
+        type=str2bool,
+        default=None,
+        help="False leaves the file unchanged. True is accepted and is not required.",
+    )
+    parser.add_argument(
+        "--reference_auto_model",
+        type=str2bool,
+        default=False,
+        help="Deprecated. Accepted for old commands. reference.py is not edited.",
+    )
+    for name, value_type in PARAM_TYPES.items():
+        parser.add_argument("--%s" % name, type=value_type, default=None)
+    return parser
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
     if args.reference_auto_model:
-        print("Reference auto model is True, modifying reference auto model")
-        modify_reference_auto_model("/opt/conda/lib/python3.10/site-packages/cnvlib/reference.py", "/opt/conda/lib/python3.10/site-packages/cnvlib/reference_new.py")
+        print(
+            "warning: --reference_auto_model is ignored. "
+            "CNVkit 0.9.14 reconciles target and antitarget sex evidence in "
+            "_reconcile_sex_guesses() and this image does not edit reference.py.",
+            file=sys.stderr,
+        )
 
-    # 没有输入时参数时打印目前所有的参数
-    print("Usage: python cnvkit_params_modify.py --file_path <path_to_output_file> --force_rewrite True\n\n")
-    print("Change reference auto model to prefer targets: python cnvkit_params_modify.py --reference_auto_model True")
-    print("Current parameters:", f"{args.file_path}")
-    print(f"MIN_REF_COVERAGE: {args.MIN_REF_COVERAGE}")
-    print(f"MAX_REF_SPREAD: {args.MAX_REF_SPREAD}")
-    print(f"NULL_LOG2_COVERAGE: {args.NULL_LOG2_COVERAGE}")
-    print(f"GC_MIN_FRACTION: {args.GC_MIN_FRACTION}")
-    print(f"GC_MAX_FRACTION: {args.GC_MAX_FRACTION}")
-    print(f"INSERT_SIZE: {args.INSERT_SIZE}")
+    path = args.file_path if args.file_path is not None else default_params_path()
+    if not path.is_file():
+        raise SystemExit("params.py not found: %s" % path)
 
-# 运行传参模式
+    original = path.read_text(encoding="utf-8")
+    current = {
+        name: parse_literal(name, raw) for name, raw in read_assignments(original).items()
+    }
+    requested = {
+        name: getattr(args, name)
+        for name in PARAM_TYPES
+        if getattr(args, name) is not None
+    }
+    merged = dict(current)
+    merged.update(requested)
+    validate(merged)
+
+    print("params file: %s" % path)
+    for name in PARAM_TYPES:
+        if name in requested and requested[name] != current[name]:
+            print("%s: %s -> %s" % (name, current[name], requested[name]))
+        else:
+            print("%s: %s" % (name, current[name]))
+
+    if not requested or args.force_rewrite is False:
+        if args.force_rewrite is False and requested:
+            print("force_rewrite is False; file not modified")
+        return 0
+
+    updated = apply_replacements(original, requested)
+    if "REGISTERED_BUILDS" in original and "REGISTERED_BUILDS" not in updated:
+        raise SystemExit("refusing to drop skgenome.genomebuild configuration")
+    compile(updated, str(path), "exec")
+
+    if updated == original:
+        print("values already match; file not modified")
+        return 0
+
+    diff = "".join(
+        difflib.unified_diff(
+            original.splitlines(keepends=True),
+            updated.splitlines(keepends=True),
+            fromfile=str(path),
+            tofile=str(path) + " (patched)",
+        )
+    )
+    sys.stdout.write(diff)
+
+    if args.dry_run:
+        print("dry-run; file not modified")
+        return 0
+
+    backup = path.with_name("params.py.orig")
+    if not backup.exists():
+        shutil.copy2(path, backup)
+    path.write_text(updated, encoding="utf-8")
+
+    written = {
+        name: parse_literal(name, raw)
+        for name, raw in read_assignments(path.read_text(encoding="utf-8")).items()
+    }
+    for name, value in requested.items():
+        if written[name] != value:
+            raise SystemExit(
+                "verification failed for %s: file has %s, expected %s"
+                % (name, written[name], value)
+            )
+    print("patched")
+    return 0
+
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
