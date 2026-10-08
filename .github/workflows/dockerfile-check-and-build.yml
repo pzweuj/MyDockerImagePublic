@@ -51,7 +51,7 @@ jobs:
 
   build:
     needs: detect-changes
-    if: ${{ contains(needs.detect-changes.outputs.changed_files, 'dockerfile') || contains(needs.detect-changes.outputs.changed_files, 'Dockerfile') }}
+    if: ${{ contains(needs.detect-changes.outputs.changed_files, 'Dockerfile') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
